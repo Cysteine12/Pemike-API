@@ -1,0 +1,18 @@
+model Vehicle {
+  id                 String   @id @default(uuid())
+  category           Category
+  brand              String
+  model              String
+  thumbnail          String?
+  totalPassengerSeat Int
+  licenseNo          String   @unique
+  available          Boolean  @default(true)
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+  trips              Trip[]
+}
+
+enum Category {
+  bus
+  car
+}

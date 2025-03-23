@@ -1,0 +1,22 @@
+model Seat {
+  id            String   @id @default(uuid())
+  seatNo        Int
+  status        Status   @default(available)
+  sessionToken  String?
+  tripId        String
+  bookingId     String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  trip          Trip     @relation(fields: [tripId], references: [id])
+  booking       Booking? @relation(fields: [bookingId], references: [id])
+
+  @@unique([seatNo, tripId])
+  @@unique([sessionToken, seatNo])
+}
+
+enum Status {
+  available
+  reserved
+  booked
+}

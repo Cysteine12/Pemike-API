@@ -1,0 +1,14 @@
+model Booking {
+  id        String   @id @default(uuid())
+  userId    String
+  tripId    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  trip    Trip      @relation(fields: [tripId], references: [id])
+  user    User      @relation(fields: [userId], references: [id])
+  Payment Payment[]
+  Seat    Seat[]
+
+  @@unique([userId, tripId])
+}

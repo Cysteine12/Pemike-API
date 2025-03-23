@@ -1,0 +1,26 @@
+model User {
+  id        String    @id @default(uuid())
+  email     String    @unique
+  password  String
+  firstName String
+  lastName  String
+  gender    Gender
+  role      Role      @default(customer)
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+  trips     Trip[]
+  Booking   Booking[]
+
+  @@unique([firstName, lastName])
+}
+
+enum Role {
+  customer
+  driver
+  admin
+}
+
+enum Gender {
+  male
+  female
+}
