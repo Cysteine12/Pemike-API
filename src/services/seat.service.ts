@@ -18,11 +18,14 @@ const getSeatsByTrip = async (
   })
 }
 
-const reserveSeat = async (filter: any, payload: Seat): Promise<Seat> => {
+const reserveSeat = async (
+  filter: any,
+  payload: Partial<Seat>
+): Promise<Seat> => {
   return await prisma.seat.upsert({
     where: { seatNo_tripId: filter },
     update: payload,
-    create: payload,
+    create: payload as Seat,
   })
 }
 

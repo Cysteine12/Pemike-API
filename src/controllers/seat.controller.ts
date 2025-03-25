@@ -35,8 +35,8 @@ const reserveSeat = catchAsync(async (req, res) => {
   const isCached = cache.has(seat.id)
   if (isCached) throw new CacheAPIError('Seat already reserved')
 
-  const response = cache.set(seat.id, { seatNo, sessionToken }, 10 * 60)
-  if (!response) throw new CacheAPIError('An Error Ocurred')
+  const cachedObj = cache.set(seat.id, { seatNo, sessionToken }, 15 * 60)
+  if (!cachedObj) throw new CacheAPIError('An Error Ocurred')
 
   res.status(201).json({
     success: true,

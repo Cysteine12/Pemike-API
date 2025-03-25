@@ -1,4 +1,3 @@
-import { NextFunction, Request, Response } from 'express'
 import { tripService } from '../services'
 import { NotFoundError } from '../middlewares/errorHandler'
 import catchAsync from '../utils/catchAsync'

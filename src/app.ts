@@ -4,30 +4,39 @@ import cors from 'cors'
 import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import logger from './middlewares/logger'
+import { rateLimit } from 'express-rate-limit'
 
 const app = express()
 
 //=======Middlewares======//
 if (process.env.NODE_ENV !== 'production') {
-    app.use(
-        morgan('dev', {
-            stream: { write: (message) => logger.info(message.trim()) },
-        })
-    )
+  app.use(
+    morgan('dev', {
+      stream: { write: (message) => logger.info(message.trim()) },
+    })
+  )
 }
 
 app.use(
-    cors({
-        origin: process.env.ORIGIN_URL,
-        methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-        allowedHeaders:
-            'Accept, Accept-Language, X-Requested-With, Content-Language, Content-Type, Origin, Authorization',
-        optionsSuccessStatus: 200,
-        credentials: true,
-    })
+  cors({
+    origin: process.env.ORIGIN_URL,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders:
+      'Accept, Accept-Language, X-Requested-With, Content-Language, Content-Type, Origin, Authorization',
+    optionsSuccessStatus: 200,
+    credentials: true,
+  })
 )
 
 app.use(helmet())
+app.use(
+  rateLimit({
+    windowMs: 15 * 60 * 1000,
+    limit: 100,
+    standardHeaders: 'draft-8',
+    legacyHeaders: false,
+  })
+)
 
 app.use(cookieParser())
 app.use(express.json())

@@ -1,2 +1,6 @@
+export { default as userService } from './user.service'
+export { default as emailService } from './email.service'
 export { default as tripService } from './trip.service'
 export { default as seatService } from './seat.service'
+export { default as bookingService } from './booking.service'
+export { default as paymentService } from './payment.service'
