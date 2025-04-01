@@ -1,7 +1,7 @@
 model Seat {
   id            String   @id @default(uuid())
   seatNo        Int
-  status        Status   @default(available)
+  status        SeatStatus   @default(AVAILABLE)
   sessionToken  String?
   tripId        String
   bookingId     String?
@@ -15,8 +15,8 @@ model Seat {
   @@unique([sessionToken, seatNo])
 }
 
-enum Status {
-  available
-  reserved
-  booked
+enum SeatStatus {
+  AVAILABLE
+  RESERVED
+  BOOKED
 }

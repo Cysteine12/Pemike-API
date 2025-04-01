@@ -1,5 +1,7 @@
 import prisma from '../config/prisma'
-import { Booking, User } from '@prisma/client'
+import { Booking, Prisma, User } from '@prisma/client'
+
+export type BookingCreateInput = Prisma.BookingCreateInput
 
 const createBooking = async (
   payload: Booking

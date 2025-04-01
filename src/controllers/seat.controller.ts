@@ -3,15 +3,17 @@ import catchAsync from '../utils/catchAsync'
 import { CacheAPIError, UnauthorizedError } from '../middlewares/errorHandler'
 import cache from '../config/cache'
 import { v4 as uuidv4 } from 'uuid'
+import { Seat, SeatStatus } from '@prisma/client'
 
 const getSeatsByTrip = catchAsync(async (req, res) => {
   const filter = { tripId: req.params.id }
   const options = { select: ['id', 'seatNo', 'status'] }
 
-  const seats = await seatService.getSeatsByTrip(filter, options)
+  const seats = (await seatService.findSeatsByTrip(filter, options)) as Seat[]
 
-  const filteredSeat = seats.map((seat: any) => {
-    if (seat.status !== 'booked' && cache.has(seat.id)) seat.status = 'reserved'
+  const filteredSeat = seats.map((seat: Seat) => {
+    if (seat.status !== SeatStatus.BOOKED && cache.has(seat.id))
+      seat.status = SeatStatus.RESERVED
     return seat
   })
 
@@ -25,12 +27,12 @@ const reserveSeat = catchAsync(async (req, res) => {
   let { tripId, seatNo, sessionToken } = req.body
   if (!sessionToken) sessionToken = uuidv4()
 
-  let seat = await seatService.reserveSeat(
+  let seat = await seatService.createSeat(
     { tripId, seatNo },
     { tripId, seatNo, sessionToken }
   )
   if (!seat) throw new UnauthorizedError('Unable to reserve seat')
-  seat.status = 'reserved'
+  seat.status = SeatStatus.RESERVED
 
   const isCached = cache.has(seat.id)
   if (isCached) throw new CacheAPIError('Seat already reserved')

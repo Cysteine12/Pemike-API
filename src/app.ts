@@ -5,11 +5,14 @@ import helmet from 'helmet'
 import cookieParser from 'cookie-parser'
 import logger from './middlewares/logger'
 import { rateLimit } from 'express-rate-limit'
+import { config } from './config/config'
+import passport from 'passport'
+import passportJwt from './config/passport-jwt'
 
 const app = express()
 
 //=======Middlewares======//
-if (process.env.NODE_ENV !== 'production') {
+if (config.NODE_ENV !== 'production') {
   app.use(
     morgan('dev', {
       stream: { write: (message) => logger.info(message.trim()) },
@@ -19,7 +22,7 @@ if (process.env.NODE_ENV !== 'production') {
 
 app.use(
   cors({
-    origin: process.env.ORIGIN_URL,
+    origin: config.ORIGIN_URL,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders:
       'Accept, Accept-Language, X-Requested-With, Content-Language, Content-Type, Origin, Authorization',
@@ -42,6 +45,9 @@ app.use(cookieParser())
 app.use(express.json())
 app.use(express.urlencoded({ extended: false }))
 
+passport.use('jwt', passportJwt())
+app.use(passport.initialize())
+
 //=======Routes========//
 import routes from './routes'
 app.use('/api', routes)
@@ -52,6 +58,6 @@ app.use(notFoundHandler)
 app.use(errorHandler)
 
 //=======........========//
-const PORT = process.env.PORT
+const PORT = config.PORT
 
 app.listen(PORT, () => console.log(`Server started on port ${PORT}`))

@@ -1,27 +1,27 @@
 model User {
-  id        String    @id @default(uuid())
-  email     String    @unique
-  phone     String
-  password  String?
-  firstName String
-  lastName  String
-  gender    Gender
-  role      Role      @default(customer)
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-  trips     Trip[]
-  Booking   Booking[]
-
-  @@unique([firstName, lastName])
+  id          String    @id @default(uuid())
+  email       String    @unique
+  phone       String
+  password    String?
+  firstName   String
+  lastName    String
+  isVerified  Boolean   @default(false)
+  gender      UserGender
+  role        UserRole      @default(CUSTOMER)
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  trips       Trip[]
+  Booking     Booking[]
+  Token       Token[]
 }
 
-enum Role {
-  customer
-  driver
-  admin
+enum UserRole {
+  CUSTOMER
+  DRIVER
+  ADMIN
 }
 
-enum Gender {
-  male
-  female
+enum UserGender {
+  MALE
+  FEMALE
 }

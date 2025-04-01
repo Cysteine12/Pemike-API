@@ -5,18 +5,22 @@ const main = async () => {
   await prisma.vehicle.createMany({
     data: [
       {
-        category: 'bus',
+        category: 'BUS',
         brand: 'Toyota',
         model: 'Hiace',
         licenseNo: 'FM246ABJ',
         totalPassengerSeat: 14,
+        thumbnail:
+          'https://res.cloudinary.com/dbjghnlke/image/upload/v1739551140/mega-automotives/app/rentals/eeowf5iokm0l3igqaqyw.webp',
       },
       {
-        category: 'car',
+        category: 'CAR',
         brand: 'Nissan',
         model: 'Camry',
         licenseNo: 'LK276AGG',
         totalPassengerSeat: 5,
+        thumbnail:
+          'https://res.cloudinary.com/dbjghnlke/image/upload/v1739551140/mega-automotives/app/rentals/eeowf5iokm0l3igqaqyw.webp',
       },
     ],
   })

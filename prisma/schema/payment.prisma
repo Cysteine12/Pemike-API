@@ -1,17 +1,19 @@
 model Payment {
   id        String        @id @default(uuid())
   method    String
-  reference String
+  reference String        
   amount    Int
-  status    PaymentStatus @default(success)
+  status    PaymentStatus @default(SUCCESS)
   bookingId String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
 
   booking Booking @relation(fields: [bookingId], references: [id])
+
+  @@unique([reference, bookingId])
 }
 
 enum PaymentStatus {
-  success
-  failed
+  SUCCESS
+  FAILED
 }

@@ -1,3 +1,4 @@
+export { default as authController } from './auth.controller'
 export { default as userController } from './user.controller'
 export { default as tripController } from './trip.controller'
 export { default as seatController } from './seat.controller'

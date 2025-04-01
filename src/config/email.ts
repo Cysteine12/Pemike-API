@@ -1,18 +1,19 @@
 import nodemailer from 'nodemailer'
+import { config } from './config'
 
-const sendEmail = (mail: Record<string, string>) => {
-  const transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 465,
-    secure: true,
-    auth: {
-      user: process.env.EMAIL_USERNAME,
-      pass: process.env.EMAIL_PASSWORD,
-    },
-  })
+const transporter = nodemailer.createTransport({
+  host: config.email.smtp.HOST,
+  port: config.email.smtp.PORT,
+  secure: true,
+  auth: {
+    user: config.email.smtp.auth.USER,
+    pass: config.email.smtp.auth.PASS,
+  },
+})
 
+const sendEmail = (mail: Record<string, any>) => {
   const mailOptions = {
-    from: `Mega-Automotives ${process.env.EMAIL_FROM}`,
+    from: `Mega-Automotives ${config.email.FROM}`,
     to: mail.to,
     subject: mail.subject,
     html: `

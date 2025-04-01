@@ -6,13 +6,13 @@ const main = async () => {
     data: [
       {
         seatNo: 4,
-        status: 'booked',
-        tripId: '1ed4c595-67ec-49cd-a69b-c93a3657faf7',
+        status: 'BOOKED',
+        tripId: '2fd543c9-209b-46fb-90cb-7e21bd83006e',
       },
       {
         seatNo: 7,
-        status: 'booked',
-        tripId: '1ed4c595-67ec-49cd-a69b-c93a3657faf7',
+        status: 'BOOKED',
+        tripId: '2fd543c9-209b-46fb-90cb-7e21bd83006e',
       },
     ],
   })

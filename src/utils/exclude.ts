@@ -1,6 +1,9 @@
-const exclude = (obj: object, keys: string[]): any => {
+const exclude = <T extends Record<string, any>>(
+  obj: T,
+  keys: (keyof T)[]
+): Partial<T> => {
   keys.forEach((key) => {
-    delete obj[key as keyof typeof obj]
+    delete obj[key]
   })
   return obj
 }

@@ -1,8 +1,23 @@
 import prisma from '../config/prisma'
-import { Trip } from '@prisma/client'
+import { Prisma, Trip } from '@prisma/client'
 
-const getTrips = async (
-  filter: object,
+export type TripWhereInput = Prisma.TripWhereInput
+
+const findTrips = async (options: {
+  page?: number
+  limit?: number
+}): Promise<Trip[]> => {
+  const { page = 1, limit = 20 } = options
+
+  return await prisma.trip.findMany({
+    skip: (page - 1) * limit || 0,
+    take: limit || undefined,
+    include: { vehicle: true },
+  })
+}
+
+const searchTrips = async (
+  filter: TripWhereInput,
   options: {
     page?: number
     limit?: number
@@ -11,14 +26,16 @@ const getTrips = async (
   const { page = 1, limit = 20 } = options
 
   return await prisma.trip.findMany({
-    where: filter,
+    where: {
+      AND: [{ source: filter.source }, { destination: filter.destination }],
+    },
     skip: (page - 1) * limit || 0,
     take: limit || undefined,
     include: { vehicle: true },
   })
 }
 
-const getTripById = async (id: string): Promise<Trip | null> => {
+const findTripById = async (id: string): Promise<Trip | null> => {
   return await prisma.trip.findUnique({
     where: { id },
     include: { vehicle: true },
@@ -32,7 +49,8 @@ const createTrip = async (payload: Trip): Promise<Trip> => {
 }
 
 export default {
-  getTrips,
-  getTripById,
+  findTrips,
+  searchTrips,
+  findTripById,
   createTrip,
 }

@@ -1,8 +1,23 @@
 import { Request } from 'express'
 import { emailService, paymentService } from '../services'
 import catchAsync from '../utils/catchAsync'
-import { PaymentAPIError } from '../middlewares/errorHandler'
-import { Payment } from '@prisma/client'
+import { NotFoundError, PaymentAPIError } from '../middlewares/errorHandler'
+import { PaymentCreateInput } from '../services/payment.service'
+
+const getPayment = catchAsync(async (req, res) => {
+  const { id } = req.params
+
+  const payment = await paymentService.findPaymentById(id)
+
+  if (!payment) {
+    throw new NotFoundError('Payment not found')
+  }
+
+  res.status(200).json({
+    success: true,
+    data: payment,
+  })
+})
 
 const initializePayment = catchAsync(async (req: Request, res) => {
   const payload = {
@@ -34,13 +49,17 @@ const verifyPayment = catchAsync(async (req: Request, res) => {
     )
   }
 
+  if (!response.data.data.metadata.bookingId) {
+    throw new PaymentAPIError(`Invalid payment reference`)
+  }
+
   const newPayment = {
     amount: response.data.data.amount / 100,
     reference: response.data.data.reference,
     method: response.data.data.channel,
-    status: response.data.data.status,
-    bookingId: response.data.data.metadata.bookingId,
-  } as Payment
+    status: response.data.data.status.toUpperCase(),
+    booking: { connect: { id: response.data.data.metadata.bookingId } },
+  } as PaymentCreateInput
 
   const savedPayment = await paymentService.createPayment(newPayment)
 
@@ -57,6 +76,7 @@ const verifyPayment = catchAsync(async (req: Request, res) => {
 })
 
 export default {
+  getPayment,
   initializePayment,
   verifyPayment,
 }

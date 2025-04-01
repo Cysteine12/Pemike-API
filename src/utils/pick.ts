@@ -1,7 +1,7 @@
-const pick = (obj: object, keys: string[]): any => {
-  return keys.reduce<{ [key: string]: unknown }>((acc, key) => {
+const pick = <T extends Record<string, any>> (obj: T, keys: (keyof T)[]): Partial<T> => {
+  return keys.reduce<Partial<T>>((acc, key) => {
     if (obj && key in obj) {
-      acc[key] = obj[key as keyof typeof obj]
+      acc[key] = obj[key]
     }
 
     return acc

@@ -1,0 +1,17 @@
+model Token {
+  id          String        @id @default(uuid())
+  token       String
+  type        TokenType
+  expires     Int
+  blacklisted Boolean      @default(false)
+  userId      String
+  createdAt   DateTime      @default(now())
+  user        User          @relation(fields: [userId], references: [id])
+}
+
+enum TokenType {
+  ACCESS
+  REFRESH
+  VERIFY_EMAIL
+  RESET_PASSWORD
+}

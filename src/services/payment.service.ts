@@ -1,6 +1,15 @@
 import axios from 'axios'
 import prisma from '../config/prisma'
-import { Payment } from '@prisma/client'
+import { Payment, Prisma } from '@prisma/client'
+
+export type PaymentCreateInput = Prisma.PaymentCreateInput
+
+const findPaymentById = async (id: string): Promise<Payment | null> => {
+  return await prisma.payment.findUnique({
+    where: { id },
+    include: { booking: true },
+  })
+}
 
 const initializePayment = async (payload: Record<string, any>) => {
   return await axios.post(
@@ -31,13 +40,14 @@ const verifyPayment = async (reference: string) => {
   )
 }
 
-const createPayment = async (payload: Payment): Promise<Payment> => {
+const createPayment = async (payload: PaymentCreateInput): Promise<Payment> => {
   return await prisma.payment.create({
     data: payload,
   })
 }
 
 export default {
+  findPaymentById,
   initializePayment,
   verifyPayment,
   createPayment,
