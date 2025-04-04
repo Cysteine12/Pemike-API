@@ -1,5 +1,5 @@
 import { Seat } from '@prisma/client'
-import { bookingService } from '../services'
+import { bookingService, seatService } from '../services'
 import catchAsync from '../utils/catchAsync'
 import cache from '../config/cache'
 import { CacheAPIError } from '../middlewares/errorHandler'
@@ -7,7 +7,7 @@ import { Cache } from '../types/Cache'
 
 const createBooking = catchAsync(async (req, res) => {
   const { seats, sessionToken } = req.body
-  const newBooking = { userId: req.user.id, tripId: req.body.tripId }
+  const newBooking = { userId: req.user?.id, tripId: req.body.tripId }
 
   seats.forEach((seat: Seat) => {
     const cachedObj = cache.get(seat.id) as Cache
@@ -17,8 +17,10 @@ const createBooking = catchAsync(async (req, res) => {
   })
 
   const savedBooking = await bookingService.createBooking(newBooking)
-
   delete (savedBooking?.user as any).password
+
+  const filter = { id: { in: seats.map((seat: Seat) => seat.id) } }
+  await seatService.updateManySeats(filter, { bookingId: savedBooking.id })
 
   res.status(201).json({
     success: true,

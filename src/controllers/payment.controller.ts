@@ -2,7 +2,8 @@ import { Request } from 'express'
 import { emailService, paymentService } from '../services'
 import catchAsync from '../utils/catchAsync'
 import { NotFoundError, PaymentAPIError } from '../middlewares/errorHandler'
-import { PaymentCreateInput } from '../services/payment.service'
+import seatService from '../services/seat.service'
+import { Payment, SeatStatus } from '@prisma/client'
 
 const getPayment = catchAsync(async (req, res) => {
   const { id } = req.params
@@ -42,14 +43,7 @@ const verifyPayment = catchAsync(async (req: Request, res) => {
   const { reference } = req.params
 
   const response: any = await paymentService.verifyPayment(reference)
-
-  if (response.data.data.status !== 'success') {
-    throw new PaymentAPIError(
-      `Payment verification ${response.data.data.status}`
-    )
-  }
-
-  if (!response.data.data.metadata.bookingId) {
+  if (!response || !response.data.data.metadata.bookingId) {
     throw new PaymentAPIError(`Invalid payment reference`)
   }
 
@@ -58,9 +52,22 @@ const verifyPayment = catchAsync(async (req: Request, res) => {
     reference: response.data.data.reference,
     method: response.data.data.channel,
     status: response.data.data.status.toUpperCase(),
-    booking: { connect: { id: response.data.data.metadata.bookingId } },
-  } as PaymentCreateInput
+    bookingId: response.data.data.metadata.bookingId,
+  } as Payment
 
+  if (response.data.data.status !== 'success') {
+    const savedPayment = await paymentService.createPayment(newPayment)
+    res.status(200).json({
+      success: true,
+      data: savedPayment,
+      message: 'Payment verification failed',
+    })
+  }
+
+  await seatService.updateManySeats(
+    { bookingId: newPayment.bookingId },
+    { status: SeatStatus.BOOKED }
+  )
   const savedPayment = await paymentService.createPayment(newPayment)
 
   await emailService.sendPaymentVerificationMail(
@@ -71,7 +78,7 @@ const verifyPayment = catchAsync(async (req: Request, res) => {
   res.status(200).json({
     success: true,
     data: savedPayment,
-    message: 'Payment verification successful',
+    message: 'Payment verified successfully',
   })
 })
 

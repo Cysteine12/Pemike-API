@@ -2,7 +2,6 @@ model Seat {
   id            String   @id @default(uuid())
   seatNo        Int
   status        SeatStatus   @default(AVAILABLE)
-  sessionToken  String?
   tripId        String
   bookingId     String?
   createdAt     DateTime @default(now())
@@ -12,7 +11,6 @@ model Seat {
   booking       Booking? @relation(fields: [bookingId], references: [id])
 
   @@unique([seatNo, tripId])
-  @@unique([sessionToken, seatNo])
 }
 
 enum SeatStatus {

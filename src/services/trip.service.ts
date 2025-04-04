@@ -2,6 +2,7 @@ import prisma from '../config/prisma'
 import { Prisma, Trip } from '@prisma/client'
 
 export type TripWhereInput = Prisma.TripWhereInput
+export type TripCreateInput = Prisma.TripCreateInput
 
 const findTrips = async (options: {
   page?: number
@@ -42,7 +43,7 @@ const findTripById = async (id: string): Promise<Trip | null> => {
   })
 }
 
-const createTrip = async (payload: Trip): Promise<Trip> => {
+const createTrip = async (payload: TripCreateInput): Promise<Trip> => {
   return await prisma.trip.create({
     data: payload,
   })

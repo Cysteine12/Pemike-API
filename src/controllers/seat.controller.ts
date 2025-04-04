@@ -11,7 +11,7 @@ const getSeatsByTrip = catchAsync(async (req, res) => {
 
   const seats = (await seatService.findSeatsByTrip(filter, options)) as Seat[]
 
-  const filteredSeat = seats.map((seat: Seat) => {
+  const filteredSeats = seats.map((seat: Seat) => {
     if (seat.status !== SeatStatus.BOOKED && cache.has(seat.id))
       seat.status = SeatStatus.RESERVED
     return seat
@@ -19,7 +19,7 @@ const getSeatsByTrip = catchAsync(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    data: filteredSeat,
+    data: filteredSeats,
   })
 })
 
@@ -27,9 +27,9 @@ const reserveSeat = catchAsync(async (req, res) => {
   let { tripId, seatNo, sessionToken } = req.body
   if (!sessionToken) sessionToken = uuidv4()
 
-  let seat = await seatService.createSeat(
+  let seat = await seatService.updateOrCreateSeat(
     { tripId, seatNo },
-    { tripId, seatNo, sessionToken }
+    { tripId, seatNo }
   )
   if (!seat) throw new UnauthorizedError('Unable to reserve seat')
   seat.status = SeatStatus.RESERVED
@@ -42,7 +42,7 @@ const reserveSeat = catchAsync(async (req, res) => {
 
   res.status(201).json({
     success: true,
-    data: seat,
+    data: { ...seat, sessionToken },
   })
 })
 

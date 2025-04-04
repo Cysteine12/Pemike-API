@@ -1,6 +1,9 @@
 import prisma from '../config/prisma'
-import { Seat } from '@prisma/client'
+import { Prisma, Seat } from '@prisma/client'
 import select from '../utils/select'
+
+export type SeatWhereUniqueInput = Prisma.SeatWhereUniqueInput
+export type SeatWhereInput = Prisma.SeatWhereInput
 
 const findSeatsByTrip = async (
   filter: object,
@@ -12,7 +15,7 @@ const findSeatsByTrip = async (
   })
 }
 
-const createSeat = async (
+const updateOrCreateSeat = async (
   filter: any,
   payload: Partial<Seat>
 ): Promise<Seat> => {
@@ -23,7 +26,15 @@ const createSeat = async (
   })
 }
 
+const updateManySeats = async (filter: object, payload: Partial<Seat>) => {
+  return await prisma.seat.updateMany({
+    where: filter,
+    data: payload,
+  })
+}
+
 export default {
   findSeatsByTrip,
-  createSeat,
+  updateOrCreateSeat,
+  updateManySeats,
 }

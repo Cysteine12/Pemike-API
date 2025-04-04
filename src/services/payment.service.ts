@@ -1,6 +1,7 @@
 import axios from 'axios'
 import prisma from '../config/prisma'
 import { Payment, Prisma } from '@prisma/client'
+import { config } from '../config/config'
 
 export type PaymentCreateInput = Prisma.PaymentCreateInput
 
@@ -18,11 +19,11 @@ const initializePayment = async (payload: Record<string, any>) => {
       email: payload.email,
       amount: payload.amount,
       metadata: payload.metadata,
-      callback_url: `${process.env.ORIGIN_URL}/payments/verify`,
+      callback_url: `${config.ORIGIN_URL}/payments/verify`,
     },
     {
       headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        Authorization: `Bearer ${config.PAYSTACK_SECRET_KEY}`,
         'Content-Type': 'application/json',
       },
     }
@@ -34,13 +35,13 @@ const verifyPayment = async (reference: string) => {
     `https://api.paystack.co/transaction/verify/${reference}`,
     {
       headers: {
-        Authorization: `Bearer ${process.env.PAYSTACK_SECRET_KEY}`,
+        Authorization: `Bearer ${config.PAYSTACK_SECRET_KEY}`,
       },
     }
   )
 }
 
-const createPayment = async (payload: PaymentCreateInput): Promise<Payment> => {
+const createPayment = async (payload: Payment): Promise<Payment> => {
   return await prisma.payment.create({
     data: payload,
   })

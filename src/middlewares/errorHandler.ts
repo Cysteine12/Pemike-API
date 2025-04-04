@@ -1,5 +1,6 @@
 import { NextFunction, Request, Response } from 'express'
 import logger from './logger.js'
+import { config } from '../config/config.js'
 
 class ValidationError extends Error {
   statusCode: number
@@ -78,7 +79,7 @@ const errorHandler = (
   res.status(statusCode).json({
     success: false,
     message,
-    error: process.env.NODE_ENV !== 'production' ? err.stack : undefined,
+    error: config.NODE_ENV !== 'production' ? err.stack : undefined,
   })
 }
 

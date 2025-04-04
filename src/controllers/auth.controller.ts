@@ -125,7 +125,7 @@ const passwordlessLogin = catchAsync(async (req, res) => {
 })
 
 const verifyEmail = catchAsync(async (req, res) => {
-  const { email, otp } = req.params
+  const { email, otp } = req.body
 
   const cachedOTP = cache.take(email)
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
@@ -143,8 +143,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    message: 'Email verification successful',
-    user: updatedUser,
+    message: 'Email verified successfully',
   })
 })
 
