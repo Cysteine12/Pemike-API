@@ -1,44 +1,33 @@
 import prisma from '../config/prisma'
 import { Prisma, Trip } from '@prisma/client'
 
+export type TripFindManyArgs = Prisma.TripFindManyArgs
 export type TripWhereInput = Prisma.TripWhereInput
+export type TripWhereUniqueInput = Prisma.TripWhereUniqueInput
 export type TripCreateInput = Prisma.TripCreateInput
 
-const findTrips = async (options: {
-  page?: number
-  limit?: number
-}): Promise<Trip[]> => {
-  const { page = 1, limit = 20 } = options
-
-  return await prisma.trip.findMany({
-    skip: (page - 1) * limit || 0,
-    take: limit || undefined,
-    include: { vehicle: true },
-  })
-}
-
-const searchTrips = async (
-  filter: TripWhereInput,
-  options: {
+const findTrips = async (
+  filter?: TripWhereInput,
+  options?: TripFindManyArgs & {
     page?: number
     limit?: number
   }
 ): Promise<Trip[]> => {
-  const { page = 1, limit = 20 } = options
+  if (options?.page && options?.limit) {
+    options.skip = (options?.page - 1) * options?.limit
+  }
 
   return await prisma.trip.findMany({
-    where: {
-      AND: [{ source: filter.source }, { destination: filter.destination }],
-    },
-    skip: (page - 1) * limit || 0,
-    take: limit || undefined,
+    where: filter,
+    skip: options?.skip || 0,
+    take: options?.limit || 20,
     include: { vehicle: true },
   })
 }
 
-const findTripById = async (id: string): Promise<Trip | null> => {
+const findTrip = async (filter: TripWhereUniqueInput): Promise<Trip | null> => {
   return await prisma.trip.findUnique({
-    where: { id },
+    where: filter,
     include: { vehicle: true },
   })
 }
@@ -51,7 +40,6 @@ const createTrip = async (payload: TripCreateInput): Promise<Trip> => {
 
 export default {
   findTrips,
-  searchTrips,
-  findTripById,
+  findTrip,
   createTrip,
 }

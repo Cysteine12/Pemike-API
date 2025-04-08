@@ -74,7 +74,7 @@ const errorHandler = (
 ) => {
   const { statusCode = 500, message = 'Internal Server Error' } = err
 
-  if (statusCode >= 500) logger.error(`${message}, \n_Stack:_ ${err.stack} `)
+  if (statusCode >= 500) logger.error(`${message}, \n_Stack:_ ${err.stack}`)
 
   res.status(statusCode).json({
     success: false,

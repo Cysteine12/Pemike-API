@@ -2,12 +2,13 @@ import { tripService } from '../services'
 import { NotFoundError } from '../middlewares/errorHandler'
 import catchAsync from '../utils/catchAsync'
 import pick from '../utils/pick'
+import { TripWhereInput } from '../services/trip.service'
 
 const getTrips = catchAsync(async (req, res) => {
-  const { page, limit } = req.query
-  const options = { page: Number(page), limit: Number(limit) }
+  const query = pick(req.query, ['page', 'limit'])
+  const options = { page: Number(query.page), limit: Number(query.limit) }
 
-  const trips = await tripService.findTrips(options)
+  const trips = await tripService.findTrips({}, options)
 
   res.status(200).json({
     success: true,
@@ -16,9 +17,14 @@ const getTrips = catchAsync(async (req, res) => {
 })
 
 const searchTripsByParams = catchAsync(async (req, res) => {
-  const filter = pick(req.query, ['source', 'destination'])
+  const query = pick(req.query, ['page', 'limit', 'source', 'destination'])
 
-  const trips = await tripService.searchTrips(filter, {})
+  const options = { page: Number(query.page), limit: Number(query.limit) }
+  const filter: TripWhereInput = {
+    OR: [{ source: query.source }, { destination: query.destination }],
+  }
+
+  const trips = await tripService.findTrips(filter, options)
 
   res.status(200).json({
     success: true,
@@ -29,11 +35,8 @@ const searchTripsByParams = catchAsync(async (req, res) => {
 const getTrip = catchAsync(async (req, res) => {
   const { id } = req.params
 
-  const trip = await tripService.findTripById(id)
-
-  if (!trip) {
-    throw new NotFoundError('Trip not found')
-  }
+  const trip = await tripService.findTrip({ id })
+  if (!trip) throw new NotFoundError('Trip not found')
 
   res.status(200).json({
     success: true,

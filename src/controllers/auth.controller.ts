@@ -66,9 +66,6 @@ const login = catchAsync(async (req, res) => {
   if (!user) {
     throw new NotFoundError('Invalid credentials')
   }
-  if (!user.password) {
-    throw new ValidationError('passwordless-login')
-  }
 
   const isMatch = await bcrypt.compare(password, user.password)
   if (!isMatch) {
@@ -80,36 +77,8 @@ const login = catchAsync(async (req, res) => {
   }
 
   const { access, refresh } = await tokenService.generateAndSaveAuthTokens(
-    user.id
-  )
-
-  res.cookie('accessToken', access.token, cookieConfig(access.expires))
-  res.cookie('refreshToken', refresh.token, cookieConfig(refresh.expires))
-
-  let filteredUser = exclude<User>(user, ['password', 'createdAt', 'updatedAt'])
-
-  res.status(200).json({
-    success: true,
-    message: 'Login successful',
-    user: filteredUser,
-  })
-})
-
-const passwordlessLogin = catchAsync(async (req, res) => {
-  const { email, otp } = req.body
-
-  const cachedOTP = cache.take(email)
-  if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
-
-  if (cachedOTP !== String(otp)) {
-    throw new UnauthorizedError('Wrong code, Try Again!')
-  }
-
-  let user = await authService.findUser({ email: email })
-  if (!user) throw new NotFoundError('User not found')
-
-  const { access, refresh } = await tokenService.generateAndSaveAuthTokens(
-    user.id
+    user.id,
+    user.role
   )
 
   res.cookie('accessToken', access.token, cookieConfig(access.expires))
@@ -147,29 +116,57 @@ const verifyEmail = catchAsync(async (req, res) => {
   })
 })
 
-const setPassword = catchAsync(async (req, res) => {
-  const newPassword = req.body.password
-  const { id } = req.user
+const forgotPassword = catchAsync(async (req, res) => {
+  const { email } = req.body
 
-  let user = await userService.findUser({ id })
-  if (!user || user.password) {
-    throw new ValidationError('User not found')
+  const otp = Math.floor(100000 + Math.random() * 900000).toString()
+  const isCached = cache.set(
+    email,
+    otp,
+    config.jwt.RESET_PASSWORD_EXPIRATION_MINUTES * 60 * 60
+  )
+  if (!isCached) throw new CacheAPIError('An Error Ocurred')
+
+  await emailService.sendForgotPasswordMail(email, otp)
+
+  res.status(200).json({
+    success: true,
+    message: 'Kindly check your email for the code',
+  })
+})
+
+const resetPassword = catchAsync(async (req, res) => {
+  const { email, password, otp } = req.body
+
+  const cachedOTP = cache.take(email)
+  if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
+
+  if (cachedOTP !== String(otp)) {
+    throw new UnauthorizedError('Wrong code, Try Again!')
   }
 
   const salt = await bcrypt.genSalt(10)
-  user.password = await bcrypt.hash(newPassword, salt)
+  const newPassword = await bcrypt.hash(password, salt)
 
-  await userService.updateUser({ id }, user)
+  const updatedUser = await userService.updateUser(
+    { email },
+    { password: newPassword }
+  )
 
-  res.status(201).json({
+  await emailService.sendPasswordChangedMail(
+    updatedUser.email,
+    updatedUser.firstName
+  )
+
+  res.status(200).json({
     success: true,
-    message: 'Password added successfully',
+    message: 'Email verified successfully',
   })
 })
 
 const changePassword = catchAsync(async (req, res) => {
   const { currentPassword, newPassword } = req.body
-  const { id } = req.user
+  const { id } = req.user as User
 
   let user = await authService.findUser({ id })
   if (!user || !user.password) {
@@ -185,7 +182,7 @@ const changePassword = catchAsync(async (req, res) => {
 
   await userService.updateUser({ id }, user)
 
-  await emailService.sendPasswordChangedMail(user)
+  await emailService.sendPasswordChangedMail(user.email, user.firstName)
 
   res.status(200).json({
     success: true,
@@ -207,7 +204,8 @@ const refreshToken = catchAsync(async (req, res) => {
       if (err) throw new UnauthenticatedError('Invalid or expired token')
 
       const { access, refresh } = await tokenService.generateAndSaveAuthTokens(
-        payload.sub
+        payload.sub,
+        payload.role
       )
 
       res.cookie('accessToken', access.token, cookieConfig(access.expires))
@@ -269,9 +267,9 @@ const logout = catchAsync(async (req, res) => {
 export default {
   register,
   login,
-  passwordlessLogin,
   verifyEmail,
-  setPassword,
+  forgotPassword,
+  resetPassword,
   changePassword,
   refreshToken,
   requestOTP,

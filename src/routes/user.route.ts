@@ -10,6 +10,10 @@ router.get(
   userController.getProfile
 )
 
-router.post('/profile', userController.createProfile)
+router.patch(
+  '/profile',
+  passport.authenticate('jwt', { session: false }),
+  userController.updateProfile
+)
 
 export default router

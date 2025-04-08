@@ -19,7 +19,10 @@ export default () => {
     },
     async (payload, done) => {
       try {
-        const user = await userService.findUser({ id: payload.sub })
+        const user = await userService.findUser({
+          id: payload.sub,
+          role: payload.role,
+        })
 
         if (user) {
           return done(null, user)

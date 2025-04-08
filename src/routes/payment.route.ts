@@ -1,12 +1,38 @@
 import express from 'express'
 import { paymentController } from '../controllers'
+import passport from 'passport'
+import { authorize } from '../middlewares/authorize'
 
 const router = express.Router()
 
-router.get('/:id', paymentController.getPayment)
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['CUSTOMER']),
+  paymentController.getPayments
+)
 
-router.post('/initialize-payment', paymentController.initializePayment)
+router.get(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['CUSTOMER']),
+  paymentController.getPayment
+)
 
-router.post('/verify-payment/:reference', paymentController.verifyPayment)
+router.post(
+  '/initialize-payment',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['CUSTOMER']),
+  paymentController.initializePayment
+)
+
+router.post(
+  '/verify-payment/:reference',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['CUSTOMER']),
+  paymentController.verifyPayment
+)
+
+router.post('/payment-webhook', paymentController.paymentWebhook)
 
 export default router

@@ -5,13 +5,21 @@ export interface CustomParamsDictionary {
   [key: string]: any
 }
 
+export interface PaginationQuery {
+  page?: string
+  limit?: string
+  source?: string
+  destination?: string
+  // [key: string]: any
+}
+
 const catchAsync =
   (
     callback: RequestHandler<
       CustomParamsDictionary,
       any,
       any,
-      qs.ParsedQs,
+      PaginationQuery,
       Record<string, any>
     >
   ) =>

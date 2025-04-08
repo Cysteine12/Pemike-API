@@ -42,7 +42,13 @@ app.use(
 )
 
 app.use(cookieParser())
-app.use(express.json())
+app.use(
+  express.json({
+    verify: (req: IncomingMessage & { rawBody: any }, res, buf) => {
+      req.rawBody = buf
+    },
+  })
+)
 app.use(express.urlencoded({ extended: false }))
 
 passport.use('jwt', passportJwt())
@@ -54,6 +60,7 @@ app.use('/api', routes)
 
 //=======Error Handler=======//
 import { notFoundHandler, errorHandler } from './middlewares/errorHandler'
+import { IncomingMessage } from 'http'
 app.use(notFoundHandler)
 app.use(errorHandler)
 

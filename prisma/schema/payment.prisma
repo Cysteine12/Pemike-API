@@ -3,7 +3,7 @@ model Payment {
   method    String
   reference String        
   amount    Int
-  status    PaymentStatus @default(SUCCESS)
+  status    PaymentStatus
   bookingId String
   createdAt DateTime      @default(now())
   updatedAt DateTime      @updatedAt
@@ -16,4 +16,7 @@ model Payment {
 enum PaymentStatus {
   SUCCESS
   FAILED
+  PENDING
+  ABANDONED
+  CANCELLED
 }

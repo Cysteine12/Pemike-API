@@ -1,10 +1,8 @@
 import { NextFunction, Request, Response } from 'express'
-import {
-  UnauthenticatedError,
-  UnauthorizedError,
-} from '../middlewares/errorHandler'
+import { UnauthenticatedError, UnauthorizedError } from './errorHandler.js'
+import { UserRole } from '@prisma/client'
 
-const authorize = (roles: string[]) => {
+const authorize = (roles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.isAuthenticated()) {
       throw new UnauthenticatedError('You need to login first')
@@ -19,4 +17,4 @@ const authorize = (roles: string[]) => {
   }
 }
 
-export default authorize
+export { authorize }

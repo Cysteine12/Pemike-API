@@ -2,12 +2,43 @@ import { Seat } from '@prisma/client'
 import { bookingService, seatService } from '../services'
 import catchAsync from '../utils/catchAsync'
 import cache from '../config/cache'
-import { CacheAPIError } from '../middlewares/errorHandler'
+import { CacheAPIError, NotFoundError } from '../middlewares/errorHandler'
 import { Cache } from '../types/Cache'
 
+const getBookings = catchAsync(async (req, res) => {
+  const userId = req.user!.id
+  const page = parseInt(req.query.page!)
+  const limit = parseInt(req.query.limit!)
+
+  const bookings = await bookingService.findBookings(
+    { userId },
+    { page, limit }
+  )
+
+  res.status(200).json({
+    success: true,
+    data: bookings,
+  })
+})
+
+const getBooking = catchAsync(async (req, res) => {
+  const userId = req.user!.id
+  const { id } = req.params
+
+  const booking = await bookingService.findBooking({ id, userId })
+  if (!booking) throw new NotFoundError('Booking not found')
+
+  res.status(200).json({
+    success: true,
+    data: booking,
+  })
+})
+
 const createBooking = catchAsync(async (req, res) => {
-  const { seats, sessionToken } = req.body
-  const newBooking = { userId: req.user?.id, tripId: req.body.tripId }
+  const { id } = req.user!
+  const { seats, sessionToken, tripId } = req.body
+
+  const newBooking = { userId: id, tripId: tripId }
 
   seats.forEach((seat: Seat) => {
     const cachedObj = cache.get(seat.id) as Cache
@@ -16,8 +47,16 @@ const createBooking = catchAsync(async (req, res) => {
     }
   })
 
-  const savedBooking = await bookingService.createBooking(newBooking)
-  delete (savedBooking?.user as any).password
+  const savedBooking = await bookingService.updateOrCreateBooking(
+    { userId_tripId: newBooking },
+    newBooking
+  )
+  delete (savedBooking.user as any).password
+
+  await seatService.updateManySeats(
+    { bookingId: savedBooking.id },
+    { bookingId: null }
+  )
 
   const filter = { id: { in: seats.map((seat: Seat) => seat.id) } }
   await seatService.updateManySeats(filter, { bookingId: savedBooking.id })
@@ -29,5 +68,7 @@ const createBooking = catchAsync(async (req, res) => {
 })
 
 export default {
+  getBookings,
+  getBooking,
   createBooking,
 }

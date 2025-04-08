@@ -1,32 +1,48 @@
 import prisma from '../config/prisma'
 import { Prisma, Seat } from '@prisma/client'
-import select from '../utils/select'
 
 export type SeatWhereUniqueInput = Prisma.SeatWhereUniqueInput
+export type SeatFindManyArgs = Prisma.SeatFindManyArgs
+export type SeatFindUniqueArgs = Prisma.SeatFindUniqueArgs
 export type SeatWhereInput = Prisma.SeatWhereInput
+export type SeatUncheckedCreateInput = Prisma.SeatUncheckedCreateInput
+export type SeatUncheckedUpdateManyInput = Prisma.SeatUncheckedUpdateManyInput
 
-const findSeatsByTrip = async (
-  filter: object,
-  options: { select: string[] }
+const findSeats = async (
+  filter: SeatWhereInput,
+  options?: SeatFindManyArgs
 ): Promise<Partial<Seat>[]> => {
   return await prisma.seat.findMany({
     where: filter,
-    select: select(options.select),
+    select: options?.select,
+  })
+}
+
+const findSeat = async (
+  filter: SeatWhereInput,
+  options?: SeatFindManyArgs
+): Promise<Seat | null> => {
+  return await prisma.seat.findFirst({
+    where: filter,
+    orderBy: options?.orderBy,
   })
 }
 
 const updateOrCreateSeat = async (
-  filter: any,
-  payload: Partial<Seat>
+  filter: SeatWhereUniqueInput,
+  payload: SeatUncheckedCreateInput
 ): Promise<Seat> => {
   return await prisma.seat.upsert({
-    where: { seatNo_tripId: filter },
+    where: filter,
     update: payload,
-    create: payload as Seat,
+    create: payload,
   })
 }
 
-const updateManySeats = async (filter: object, payload: Partial<Seat>) => {
+const updateManySeats = async (
+  filter: SeatWhereInput,
+  payload: SeatUncheckedUpdateManyInput
+) => {
   return await prisma.seat.updateMany({
     where: filter,
     data: payload,
@@ -34,7 +50,8 @@ const updateManySeats = async (filter: object, payload: Partial<Seat>) => {
 }
 
 export default {
-  findSeatsByTrip,
+  findSeats,
+  findSeat,
   updateOrCreateSeat,
   updateManySeats,
 }

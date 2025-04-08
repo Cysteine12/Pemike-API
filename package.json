@@ -6,7 +6,9 @@
   "type": "module",
   "scripts": {
     "build": "tsc --build",
-    "dev": "nodemon --exec tsx -r dotenv/config src/app.ts",
+    "dev": "tsc --noEmit && tsx --env-file=.env --watch src/app.ts",
+    "dev1": "nodemon --exec tsx -r dotenv/config src/app.ts",
+    "dev:host": "ngrok http 5000",
     "start": "node dist/app.js",
     "db:migrate": "prisma migrate dev",
     "db:deploy": "prisma migrate deploy",
@@ -62,8 +64,6 @@
     "@types/passport-jwt": "^4.0.1",
     "@types/uuid": "^10.0.0",
     "@types/winston": "^2.4.4",
-    "dotenv": "^16.4.7",
-    "nodemon": "^3.1.9",
     "prisma": "^6.4.1",
     "ts-node": "^10.9.2",
     "typescript": "^5.8.2"

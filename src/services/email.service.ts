@@ -19,7 +19,7 @@ const sendWelcomeMail = async (email: string, firstName: string) => {
               <ul>
                   <li>✔ Round-the-Clock Availability</li>
                   <li>✔ Increased Flexibility</li>
-                  <li>✔ Enhanced Reliability
+                  <li>✔ Enhanced Reliability</li>
                   <li>✔ Customer Satisfaction</li>
                   <li>✔ Improved Emergency Support</li>
               </ul>
@@ -32,8 +32,7 @@ const sendWelcomeMail = async (email: string, firstName: string) => {
               </a>
             </div>
             <br/>
-            Warm Regards, 
-            <br/>
+            Warm Regards,<br/>
             Pemike Transports Team.
         `,
   })
@@ -68,11 +67,32 @@ const sendEmailVerificationRequestMail = async (
   })
 }
 
-const sendPasswordChangedMail = async (user: User) => {
+const sendForgotPasswordMail = async (email: string, otp: string) => {
   return await sendEmail({
-    to: user.email,
+    to: email,
+    subject: 'Pemike Account Password Reset',
+    html: `<h3>Dear valued user,</h3>
+          You are receiving this email because you requested a password reset.
+          Please use the following one-time password to reset your password:
+            <br/><br/>
+            <span style="margin:auto;background:#fff;color:#000;padding:6px 10px;font-size:30px;border-radius:3px;font-weight:bold;">
+                ${otp}
+            </span>
+          <br/><br/>
+          If you did not request this, kindly ignore.
+          <br/><br/>
+          Thanks,
+          <br/>
+          Pemike Transports.
+      `,
+  })
+}
+
+const sendPasswordChangedMail = async (email: string, firstName: string) => {
+  return await sendEmail({
+    to: email,
     subject: 'Your account password was changed!',
-    html: `<h3>Hey ${user.firstName},</h3>
+    html: `<h3>Hey ${firstName},</h3>
             <div>
               Please be informed that your user account password has been updated.
               <br/><br/>
@@ -150,6 +170,7 @@ const sendUserVerificationOTP = async (email: string, otp: string) => {
 export default {
   sendWelcomeMail,
   sendEmailVerificationRequestMail,
+  sendForgotPasswordMail,
   sendPasswordChangedMail,
   sendPaymentVerificationMail,
   sendUserVerificationOTP,

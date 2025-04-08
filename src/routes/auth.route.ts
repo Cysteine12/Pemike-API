@@ -8,15 +8,11 @@ router.post('/register', authController.register)
 
 router.post('/login', authController.login)
 
-router.post('/passwordless-login', authController.passwordlessLogin)
-
 router.post('/verify-email', authController.verifyEmail)
 
-router.post(
-  '/set-password',
-  passport.authenticate('jwt', { session: false }),
-  authController.setPassword
-)
+router.post('/forgot-password', authController.forgotPassword)
+
+router.post('/reset-password', authController.resetPassword)
 
 router.post(
   '/change-password',
@@ -26,10 +22,10 @@ router.post(
 
 router.post('/refresh-token', authController.refreshToken)
 
-router.post('/logout', authController.logout)
-
 router.post('/request-otp', authController.requestOTP)
 
 router.post('/verify-otp', authController.verifyOTP)
+
+router.post('/logout', authController.logout)
 
 export default router
