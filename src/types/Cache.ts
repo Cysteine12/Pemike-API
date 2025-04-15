@@ -1,5 +1,5 @@
 export interface Cache {
-  sessionToken: string
+  sessionID: string
   seatNo: number
 }
 

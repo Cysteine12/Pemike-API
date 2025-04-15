@@ -28,8 +28,8 @@ const getSeatsByTrip = catchAsync(async (req, res) => {
 })
 
 const reserveSeat = catchAsync(async (req, res) => {
-  let { tripId, seatNo, sessionToken } = req.body
-  if (!sessionToken) sessionToken = uuidv4()
+  let { tripId, seatNo, sessionID } = req.body
+  if (!sessionID) sessionID = uuidv4()
 
   let seat = await seatService.updateOrCreateSeat(
     { seatNo_tripId: { seatNo, tripId } },
@@ -41,12 +41,12 @@ const reserveSeat = catchAsync(async (req, res) => {
   const isCached = cache.has(seat.id)
   if (isCached) throw new CacheAPIError('Seat already reserved')
 
-  const cachedObj = cache.set(seat.id, { seatNo, sessionToken }, 15 * 60)
+  const cachedObj = cache.set(seat.id, { seatNo, sessionID }, 15 * 60)
   if (!cachedObj) throw new CacheAPIError('An Error Ocurred')
 
   res.status(201).json({
     success: true,
-    data: { ...seat, sessionToken },
+    data: { ...seat, sessionID },
   })
 })
 

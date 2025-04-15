@@ -36,13 +36,13 @@ const getBooking = catchAsync(async (req, res) => {
 
 const createBooking = catchAsync(async (req, res) => {
   const { id } = req.user!
-  const { seats, sessionToken, tripId } = req.body
+  const { seats, sessionID, tripId } = req.body
 
   const newBooking = { userId: id, tripId: tripId }
 
   seats.forEach((seat: Seat) => {
     const cachedObj = cache.get(seat.id) as Cache
-    if (!cachedObj || cachedObj.sessionToken !== sessionToken) {
+    if (!cachedObj || cachedObj.sessionID !== sessionID) {
       throw new CacheAPIError('Seat lock expired')
     }
   })

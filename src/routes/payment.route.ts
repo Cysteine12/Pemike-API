@@ -1,7 +1,7 @@
 import express from 'express'
 import { paymentController } from '../controllers'
 import passport from 'passport'
-import { authorize } from '../middlewares/authorize'
+import { authorize, authorizeWebhook } from '../middlewares/authorize'
 
 const router = express.Router()
 
@@ -33,6 +33,10 @@ router.post(
   paymentController.verifyPayment
 )
 
-router.post('/payment-webhook', paymentController.paymentWebhook)
+router.post(
+  '/payment-webhook',
+  authorizeWebhook,
+  paymentController.paymentWebhook
+)
 
 export default router

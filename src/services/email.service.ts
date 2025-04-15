@@ -118,7 +118,7 @@ const sendPaymentVerificationMail = async (
 ) => {
   return await sendEmail({
     to: email,
-    subject: `Trip payment ${savedPayment.status}`,
+    subject: `Trip payment successful`,
     html: `<h3>Dear valued user,</h3>
             <div>
               Thank you for booking a trip with Pemike Transports.

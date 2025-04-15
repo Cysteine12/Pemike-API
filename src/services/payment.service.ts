@@ -7,7 +7,6 @@ export interface PaymentPayload {
   email: string
   amount: number
   metadata: Record<string, any>
-  expiry: number
 }
 export interface PaystackCustomer {
   email: string
@@ -30,6 +29,8 @@ export type PaymentFindUniqueArgs = Prisma.PaymentFindUniqueArgs
 export type PaymentWhereInput = Prisma.PaymentWhereInput
 export type PaymentWhereUniqueInput = Prisma.PaymentWhereUniqueInput
 export type PaymentCreateInput = Prisma.PaymentCreateInput
+export type PaymentUncheckedUpdateInput = Prisma.PaymentUncheckedUpdateInput
+export type PaymentUncheckedCreateInput = Prisma.PaymentUncheckedCreateInput
 
 const findPayments = async (
   filter: PaymentWhereInput,
@@ -46,7 +47,7 @@ const findPayments = async (
     where: filter,
     skip: options?.skip || 0,
     take: options?.limit || 20,
-    include: { booking: true },
+    include: { booking: { include: { trip: true } } },
   })
 }
 
@@ -56,13 +57,11 @@ const findPayment = async (
 ): Promise<Payment | null> => {
   return await prisma.payment.findUnique({
     where: filter,
-    include: { booking: true },
+    include: { booking: { include: { trip: { include: { vehicle: true } } } } },
   })
 }
 
 const initializePayment = async (payload: PaymentPayload) => {
-  console.log(payload)
-
   return await axios.post(
     'https://api.paystack.co/transaction/initialize',
     {
@@ -91,8 +90,20 @@ const verifyPayment = async (reference: string) => {
   )
 }
 
-const createPayment = async (payload: PaymentCreateInput): Promise<Payment> => {
+const createPayment = async (
+  payload: PaymentUncheckedCreateInput
+): Promise<Payment> => {
   return await prisma.payment.create({
+    data: payload,
+  })
+}
+
+const updatePayment = async (
+  filter: PaymentWhereUniqueInput,
+  payload: PaymentUncheckedUpdateInput
+): Promise<Payment> => {
+  return await prisma.payment.update({
+    where: filter,
     data: payload,
   })
 }
@@ -103,4 +114,5 @@ export default {
   initializePayment,
   verifyPayment,
   createPayment,
+  updatePayment,
 }

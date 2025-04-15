@@ -17,9 +17,9 @@ const sendEmail = (mail: Record<string, any>) => {
     to: mail.to,
     subject: mail.subject,
     html: `
-            <div style="margin: 20px; background: #fff; border-radius: 10px; padding: 20px 10px; box-shadow: 0px 4px 10px gray">
-                ${mail.html}
-            </div>
+          <div style="margin: 20px; background: #fff; border-radius: 10px; padding: 20px 10px; box-shadow: 0px 4px 10px gray">
+              ${mail.html}
+          </div>
         `,
   }
 

@@ -14,14 +14,17 @@ const routes = [
     route: authRoute,
   },
   {
+    // admin can view users, update a user role
     path: '/users',
     route: userRoute,
   },
   {
+    // admin can view, create, update & delete trip
     path: '/trips',
     route: tripRoute,
   },
   {
+    // admin can view, reserve a seat
     path: '/seats',
     route: seatRoute,
   },
@@ -30,6 +33,7 @@ const routes = [
     route: bookingRoute,
   },
   {
+    // admin can view payments
     path: '/payments',
     route: paymentRoute,
   },
