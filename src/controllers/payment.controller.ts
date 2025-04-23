@@ -2,7 +2,7 @@ import cache from '../config/cache'
 import catchAsync from '../utils/catchAsync'
 import seatService from '../services/seat.service'
 import { PaymentStatus, Seat, SeatStatus } from '@prisma/client'
-import { emailService, paymentService, tripService } from '../services'
+import { emailService, fareConditionService, paymentService } from '../services'
 import {
   PaymentPayload,
   PaymentUncheckedCreateInput,
@@ -18,6 +18,7 @@ import {
 } from '../middlewares/errorHandler'
 import { Request, Response } from 'express'
 import { Cache } from '../types/Cache'
+import { getTotalFare } from '../utils/getTotalFare'
 
 const getPayments = catchAsync(async (req, res) => {
   const userId = req.user!.id
@@ -50,21 +51,28 @@ const getPayment = catchAsync(async (req, res) => {
 
 const initializePayment = catchAsync(async (req, res) => {
   const user = req.user!
-  const data = pick(req.body, ['sessionID', 'tripId', 'seats', 'bookingId'])
+  const data = pick(req.body, ['sessionID', 'tripId', 'bookingId'])
 
-  const trip = await tripService.findTrip({ id: data.tripId })
-  if (!trip) throw new NotFoundError('Trip not found')
+  const seats = (await seatService.findSeats({
+    bookingId: data.bookingId,
+  })) as Seat[]
 
-  data.seats.forEach((seat: Seat) => {
+  seats.forEach((seat: Seat) => {
     const cachedObj = cache.get(seat.id) as Cache
     if (!cachedObj || cachedObj.sessionID !== data.sessionID) {
       throw new CacheAPIError('Seat lock expired')
     }
   })
 
+  const fareCondition =
+    await fareConditionService.findMatchingFareConditionForTrip(data.tripId)
+  if (!fareCondition) throw new NotFoundError('Fare not found')
+
+  const totalFare = getTotalFare(seats, fareCondition)
+
   const payload: PaymentPayload = {
     email: user.email,
-    amount: trip.fare * data.seats.length * 100,
+    amount: totalFare * 100,
     metadata: { bookingId: data.bookingId },
   }
 
@@ -72,7 +80,7 @@ const initializePayment = catchAsync(async (req, res) => {
   if (!response) throw new PaymentAPIError('Payment attempt failed')
 
   const newPayment: PaymentUncheckedCreateInput = {
-    amount: trip.fare,
+    amount: totalFare,
     reference: response.data.data.reference,
     status: PaymentStatus.PENDING,
     bookingId: data.bookingId,

@@ -1,0 +1,24 @@
+model FareCondition {
+  id                  String              @id @default(uuid())
+  conditionLabel      FareConditionLabel
+  minWeeksBefore      Int
+  maxWeeksBefore      Int?
+  cancelLessThan48h   Decimal 
+  adultPrice          Int
+  childPrice          Int
+  infantPrice         Int
+  tripId              String
+  createdAt           DateTime            @default(now())
+  updatedAt           DateTime            @updatedAt
+
+  trip                Trip                @relation(fields: [tripId], references: [id])
+  Booking             Booking[]
+
+  @@unique([conditionLabel, tripId])
+}
+
+enum FareConditionLabel {
+  WEEK_0_TO_2
+  WEEK_2_TO_4
+  WEEK_MORE_THAN_4
+}

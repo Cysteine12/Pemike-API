@@ -1,6 +1,7 @@
 import express from 'express'
 import { userController } from '../controllers'
 import passport from 'passport'
+import { authorize } from '../middlewares/authorize'
 
 const router = express.Router()
 

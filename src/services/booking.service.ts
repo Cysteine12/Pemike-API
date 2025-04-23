@@ -7,6 +7,7 @@ export type BookingWhereInput = Prisma.BookingWhereInput
 export type BookingWhereUniqueInput = Prisma.BookingWhereUniqueInput
 export type BookingUncheckedCreateInput = Prisma.BookingUncheckedCreateInput
 export type BookingUpdateInput = Prisma.BookingUpdateInput
+export type BookingUncheckedUpdateInput = Prisma.BookingUncheckedUpdateInput
 
 const findBookings = async (
   filter: BookingWhereInput,
@@ -49,8 +50,19 @@ const updateOrCreateBooking = async (
   })
 }
 
+const updateBooking = async (
+  filter: BookingWhereUniqueInput,
+  payload: BookingUncheckedUpdateInput
+): Promise<Booking> => {
+  return await prisma.booking.update({
+    where: filter,
+    data: payload,
+  })
+}
+
 export default {
   findBookings,
   findBooking,
   updateOrCreateBooking,
+  updateBooking,
 }

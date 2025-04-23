@@ -1,18 +1,22 @@
 model Trip {
-  id                String   @id @default(uuid())
-  fare              Int
-  source            String
-  destination       String
-  departureSchedule DateTime
-  vehicleId         String
-  driverId          String
-  createdAt         DateTime @default(now())
-  updatedAt         DateTime @updatedAt
-  seats             Seat[]
+  id                  String   @id @default(uuid())
+  source              String
+  destination         String
+  departureSchedule   DateTime
+  firstChangePercent  Decimal  @default(0)
+  secondChangePercent Decimal
+  refundDays          Int
+  vehicleId           String
+  driverId            String
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
 
-  vehicle Vehicle   @relation(fields: [vehicleId], references: [id])
-  driver  User      @relation(fields: [driverId], references: [id])
-  Booking Booking[]
+  vehicle             Vehicle  @relation(fields: [vehicleId], references: [id])
+  driver              User     @relation(fields: [driverId], references: [id])
+
+  Booking             Booking[]
+  Seat                Seat[]
+  FareCondition       FareCondition[]
 
   @@unique([vehicleId, departureSchedule])
 }

@@ -23,13 +23,14 @@ const main = async () => {
         isVerified: true,
       },
       {
-        email: 'admin@gmail.com',
+        email: 'thewebstacker@gmail.com',
         firstName: 'Admin',
         lastName: 'Main',
         password: 'test1234',
         gender: 'MALE',
         phone: '07064556534',
         isVerified: true,
+        role: 'ADMIN',
       },
       {
         email: 'driver@gmail.com',

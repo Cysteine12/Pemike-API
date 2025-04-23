@@ -29,6 +29,7 @@ const updateProfile = catchAsync(async (req, res) => {
   res.status(200).json({
     success: true,
     user: filteredUser,
+    message: 'Profile updated successfully',
   })
 })
 

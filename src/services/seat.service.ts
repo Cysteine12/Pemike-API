@@ -14,7 +14,7 @@ const findSeats = async (
 ): Promise<Partial<Seat>[]> => {
   return await prisma.seat.findMany({
     where: filter,
-    select: options?.select,
+    ...options,
   })
 }
 
@@ -39,6 +39,41 @@ const updateOrCreateSeat = async (
   })
 }
 
+const updateorCreateManySeatsTransaction = async (
+  tripId: string,
+  seats: SeatUncheckedCreateInput[]
+) => {
+  return await prisma.$transaction(
+    seats.map((seat) =>
+      prisma.seat.upsert({
+        where: { id: seat.id, tripId, bookingId: null },
+        update: {
+          status: seat.status,
+        },
+        create: seat,
+      })
+    )
+  )
+}
+
+const updateManySeatsTransaction = async (
+  tripId: string,
+  seats: Seat[],
+  bookingId?: string
+) => {
+  return await prisma.$transaction(
+    seats.map((seat) =>
+      prisma.seat.update({
+        where: { id: seat.id, tripId, bookingId: null },
+        data: {
+          passengerType: seat.passengerType,
+          bookingId,
+        },
+      })
+    )
+  )
+}
+
 const updateManySeats = async (
   filter: SeatWhereInput,
   payload: SeatUncheckedUpdateManyInput
@@ -53,5 +88,7 @@ export default {
   findSeats,
   findSeat,
   updateOrCreateSeat,
+  updateorCreateManySeatsTransaction,
+  updateManySeatsTransaction,
   updateManySeats,
 }

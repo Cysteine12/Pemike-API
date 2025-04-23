@@ -1,5 +1,6 @@
 import { Router } from 'express'
 import authRoute from './auth.route'
+import adminRoute from './admin.route'
 import userRoute from './user.route'
 import tripRoute from './trip.route'
 import seatRoute from './seat.route'
@@ -14,17 +15,18 @@ const routes = [
     route: authRoute,
   },
   {
-    // admin can view users, update a user role
+    path: '/admin',
+    route: adminRoute,
+  },
+  {
     path: '/users',
     route: userRoute,
   },
   {
-    // admin can view, create, update & delete trip
     path: '/trips',
     route: tripRoute,
   },
   {
-    // admin can view, reserve a seat
     path: '/seats',
     route: seatRoute,
   },
@@ -33,7 +35,6 @@ const routes = [
     route: bookingRoute,
   },
   {
-    // admin can view payments
     path: '/payments',
     route: paymentRoute,
   },

@@ -1,10 +1,31 @@
 import prisma from '../config/prisma'
 import { Prisma, User } from '@prisma/client'
 
+export type UserWhereInput = Prisma.UserWhereInput
+export type UserFindManyArgs = Prisma.UserFindManyArgs
 export type UserCreateInput = Prisma.UserCreateInput
 export type UserFindUniqueArgs = Prisma.UserFindUniqueArgs
 export type UserUpdateInput = Prisma.UserUpdateInput
 export type UserWhereUniqueInput = Prisma.UserWhereUniqueInput
+
+const findUsers = async (
+  filter: UserWhereInput,
+  options?: UserFindManyArgs & {
+    page?: number
+    limit?: number
+  }
+): Promise<Omit<User, 'password'>[]> => {
+  if (options?.page && options?.limit) {
+    options.skip = (options?.page - 1) * options?.limit
+  }
+
+  return await prisma.user.findMany({
+    where: filter,
+    skip: options?.skip || 0,
+    take: options?.limit || 20,
+    omit: { password: true },
+  })
+}
 
 const findUser = async (
   filter: UserWhereUniqueInput,
@@ -33,6 +54,7 @@ const updateUser = async (
 }
 
 export default {
+  findUsers,
   findUser,
   createUser,
   updateUser,

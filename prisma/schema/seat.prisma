@@ -2,6 +2,7 @@ model Seat {
   id            String   @id @default(uuid())
   seatNo        Int
   status        SeatStatus   @default(AVAILABLE)
+  passengerType PassengerType?
   tripId        String
   bookingId     String?
   createdAt     DateTime @default(now())
@@ -17,4 +18,10 @@ enum SeatStatus {
   AVAILABLE
   RESERVED
   BOOKED
+}
+
+enum PassengerType {
+  ADULT_WITHOUT_INFANT
+  ADULT_WITH_INFANT
+  CHILD
 }

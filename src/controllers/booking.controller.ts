@@ -1,9 +1,10 @@
-import { Seat } from '@prisma/client'
-import { bookingService, seatService } from '../services'
+import { BookingStatus, Seat, SeatStatus } from '@prisma/client'
+import { bookingService, fareConditionService, seatService } from '../services'
 import catchAsync from '../utils/catchAsync'
 import cache from '../config/cache'
 import { CacheAPIError, NotFoundError } from '../middlewares/errorHandler'
 import { Cache } from '../types/Cache'
+import { BookingUncheckedCreateInput } from '../services/booking.service'
 
 const getBookings = catchAsync(async (req, res) => {
   const userId = req.user!.id
@@ -36,9 +37,11 @@ const getBooking = catchAsync(async (req, res) => {
 
 const createBooking = catchAsync(async (req, res) => {
   const { id } = req.user!
-  const { seats, sessionID, tripId } = req.body
-
-  const newBooking = { userId: id, tripId: tripId }
+  const { sessionID, tripId } = req.body
+  const seats = req.body.seats.map((seat: Seat) => ({
+    id: seat.id,
+    passengerType: seat.passengerType,
+  }))
 
   seats.forEach((seat: Seat) => {
     const cachedObj = cache.get(seat.id) as Cache
@@ -47,8 +50,18 @@ const createBooking = catchAsync(async (req, res) => {
     }
   })
 
+  const fareCondition =
+    await fareConditionService.findMatchingFareConditionForTrip(tripId)
+  if (!fareCondition) throw new NotFoundError('Fare not found')
+
+  const newBooking: BookingUncheckedCreateInput = {
+    userId: id,
+    tripId: tripId,
+    fareConditionId: fareCondition.id,
+  }
+
   const savedBooking = await bookingService.updateOrCreateBooking(
-    { userId_tripId: newBooking },
+    { userId_tripId: { userId: id, tripId } },
     newBooking
   )
   delete (savedBooking.user as any).password
@@ -58,8 +71,7 @@ const createBooking = catchAsync(async (req, res) => {
     { bookingId: null }
   )
 
-  const filter = { id: { in: seats.map((seat: Seat) => seat.id) } }
-  await seatService.updateManySeats(filter, { bookingId: savedBooking.id })
+  await seatService.updateManySeatsTransaction(tripId, seats, savedBooking.id)
 
   res.status(201).json({
     success: true,
@@ -67,8 +79,29 @@ const createBooking = catchAsync(async (req, res) => {
   })
 })
 
+const cancelBooking = catchAsync(async (req, res) => {
+  const userId = req.user?.id
+  const id = req.params.id
+
+  await bookingService.updateBooking(
+    { id, trip: { departureSchedule: { gt: new Date() } } },
+    { status: BookingStatus.CANCELED }
+  )
+
+  await seatService.updateManySeats(
+    { bookingId: id },
+    { bookingId: null, status: SeatStatus.AVAILABLE }
+  )
+
+  res.status(201).json({
+    success: true,
+    message: 'Booking cancelled successfully',
+  })
+})
+
 export default {
   getBookings,
   getBooking,
   createBooking,
+  cancelBooking,
 }

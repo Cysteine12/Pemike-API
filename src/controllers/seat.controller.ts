@@ -6,6 +6,7 @@ import { v4 as uuidv4 } from 'uuid'
 import { Seat, SeatStatus } from '@prisma/client'
 import select from '../utils/select'
 import { SeatFindManyArgs, SeatWhereInput } from '../services/seat.service'
+import { config } from '../config/config'
 
 const getSeatsByTrip = catchAsync(async (req, res) => {
   const filter: SeatWhereInput = { tripId: req.params.id }
@@ -41,7 +42,11 @@ const reserveSeat = catchAsync(async (req, res) => {
   const isCached = cache.has(seat.id)
   if (isCached) throw new CacheAPIError('Seat already reserved')
 
-  const cachedObj = cache.set(seat.id, { seatNo, sessionID }, 15 * 60)
+  const cachedObj = cache.set(
+    seat.id,
+    { seatNo, sessionID },
+    config.SEAT_RESERVATION_EXPIRATION_MINUTES * 60
+  )
   if (!cachedObj) throw new CacheAPIError('An Error Ocurred')
 
   res.status(201).json({
