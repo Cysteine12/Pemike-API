@@ -5,7 +5,7 @@
   "main": "dist/app.js",
   "type": "module",
   "scripts": {
-    "build": "tsc --build",
+    "build": "tsc",
     "dev": "tsc --noEmit && tsx --env-file=.env --watch src/app.ts",
     "dev1": "nodemon --exec tsx -r dotenv/config src/app.ts",
     "dev:host": "ngrok http 5000",

@@ -10,6 +10,7 @@ export interface PaginationQuery {
   limit?: string
   source?: string
   destination?: string
+  licenseNo?: string
 }
 
 const catchAsync =

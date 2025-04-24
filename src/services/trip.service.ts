@@ -1,6 +1,5 @@
 import prisma from '../config/prisma'
 import { Prisma, Trip, FareCondition } from '@prisma/client'
-import { tripController } from '../controllers'
 
 export type TripFindManyArgs = Prisma.TripFindManyArgs
 export type TripWhereInput = Prisma.TripWhereInput

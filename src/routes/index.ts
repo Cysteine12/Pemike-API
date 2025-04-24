@@ -3,6 +3,7 @@ import authRoute from './auth.route'
 import adminRoute from './admin.route'
 import userRoute from './user.route'
 import tripRoute from './trip.route'
+import vehicleRoute from './vehicle.route'
 import seatRoute from './seat.route'
 import bookingRoute from './booking.route'
 import paymentRoute from './payment.route'
@@ -25,6 +26,10 @@ const routes = [
   {
     path: '/trips',
     route: tripRoute,
+  },
+  {
+    path: '/vehicles',
+    route: vehicleRoute,
   },
   {
     path: '/seats',
