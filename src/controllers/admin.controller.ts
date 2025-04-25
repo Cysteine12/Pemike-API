@@ -4,17 +4,10 @@ import {
   bookingService,
   paymentService,
   seatService,
-  tripService,
   userService,
 } from '../services'
-import { FareConditionCreateWithoutTripInput } from '../services/fare_condition.service'
-import {
-  TripUncheckedCreateInput,
-  TripUncheckedUpdateInput,
-} from '../services/trip.service'
 import catchAsync from '../utils/catchAsync'
 import exclude from '../utils/exclude'
-import pick from '../utils/pick'
 import { SeatUncheckedCreateInput } from '../services/seat.service'
 
 const getUsers = catchAsync(async (req, res) => {
@@ -25,6 +18,19 @@ const getUsers = catchAsync(async (req, res) => {
     { NOT: { role: 'ADMIN' } },
     { page, limit }
   )
+
+  res.status(200).json({
+    success: true,
+    data: users,
+  })
+})
+
+const getUsersByRole = catchAsync(async (req, res) => {
+  const role = req.params.role.toUpperCase()
+  const page = parseInt(req.query.page!)
+  const limit = parseInt(req.query.limit!)
+
+  const users = await userService.findUsers({ role }, { page, limit })
 
   res.status(200).json({
     success: true,
@@ -55,78 +61,6 @@ const updateRole = catchAsync(async (req, res) => {
     success: true,
     user: updatedUser,
     message: 'User role updated successfully',
-  })
-})
-
-const createTrip = catchAsync(async (req, res) => {
-  const newTrip = pick<TripUncheckedCreateInput>(req.body, [
-    'source',
-    'destination',
-    'departureSchedule',
-    'firstChangePercent',
-    'secondChangePercent',
-    'refundDays',
-    'driverId',
-    'vehicleId',
-  ]) as TripUncheckedCreateInput
-
-  const newFareConditions = req.body.fareConditions.map(
-    (fareCondition: FareConditionCreateWithoutTripInput) => {
-      return pick<FareConditionCreateWithoutTripInput>(fareCondition, [
-        'conditionLabel',
-        'adultPrice',
-        'childPrice',
-        'infantPrice',
-        'maxWeeksBefore',
-        'minWeeksBefore',
-        'cancelLessThan48h',
-      ])
-    }
-  ) as FareConditionCreateWithoutTripInput[]
-
-  const savedTrip = await tripService.createTrip({
-    ...newTrip,
-    FareCondition: { createMany: { data: newFareConditions } },
-  })
-
-  res.status(201).json({
-    success: true,
-    data: savedTrip,
-    message: 'Trip created successfully',
-  })
-})
-
-const updateTrip = catchAsync(async (req, res) => {
-  const id = req.params.id
-
-  const newTrip = pick<TripUncheckedUpdateInput>(req.body, [
-    'source',
-    'destination',
-    'departureSchedule',
-    'firstChangePercent',
-    'secondChangePercent',
-    'refundDays',
-    'driverId',
-    'vehicleId',
-  ]) as TripUncheckedUpdateInput
-
-  await tripService.updateTrip({ id }, newTrip)
-
-  res.status(201).json({
-    success: true,
-    message: 'Trip updated successfully',
-  })
-})
-
-const deleteTrip = catchAsync(async (req, res) => {
-  const id = req.params.id
-
-  const deletedTrip = await tripService.deleteTrip({ id })
-  if (!deletedTrip) throw new NotFoundError('Trip not found')
-
-  res.status(200).json({
-    success: true,
-    message: 'Trip deleted successfully',
   })
 })
 
@@ -191,11 +125,9 @@ const getPayments = catchAsync(async (req, res) => {
 
 export default {
   getUsers,
+  getUsersByRole,
   getUser,
   updateRole,
-  createTrip,
-  updateTrip,
-  deleteTrip,
   getSeats,
   reserveSeats,
   getBookings,

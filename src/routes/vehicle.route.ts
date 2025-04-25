@@ -1,12 +1,50 @@
 import express from 'express'
 import { vehicleController } from '../controllers'
+import passport from 'passport'
+import { authorize } from '../middlewares/authorize'
 
 const router = express.Router()
 
-router.get('/', vehicleController.getVehicles)
+router.get(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.getVehicles
+)
 
-router.get('/search', vehicleController.searchVehiclesByLicense)
+router.get(
+  '/search',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.searchVehiclesByLicense
+)
 
-router.get('/:id', vehicleController.getVehicle)
+router.get(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.getVehicle
+)
+
+router.post(
+  '/',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.createVehicle
+)
+
+router.patch(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.updateVehicle
+)
+
+router.delete(
+  '/:id',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.deleteVehicle
+)
 
 export default router

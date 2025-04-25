@@ -13,6 +13,13 @@ router.get(
 )
 
 router.get(
+  '/users/:role/role',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.getUsersByRole
+)
+
+router.get(
   '/users/:id',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
@@ -24,27 +31,6 @@ router.patch(
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
   adminController.updateRole
-)
-
-router.post(
-  '/trips',
-  passport.authenticate('jwt', { session: false }),
-  authorize(['ADMIN']),
-  adminController.createTrip
-)
-
-router.patch(
-  '/trips/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorize(['ADMIN']),
-  adminController.updateTrip
-)
-
-router.delete(
-  '/trips/:id',
-  passport.authenticate('jwt', { session: false }),
-  authorize(['ADMIN']),
-  adminController.deleteTrip
 )
 
 router.get(
