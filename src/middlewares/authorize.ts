@@ -20,6 +20,8 @@ const authorize = (roles: UserRole[]) => {
 }
 
 const authorizeWebhook = (req: Request, res: Response, next: NextFunction) => {
+  console.info('Webhook triggered')
+
   const requestIP =
     (req.headers['x-forwarded-for'] as string)?.split(',')?.pop()?.trim() ||
     req.socket.remoteAddress
