@@ -79,6 +79,8 @@ const errorHandler = (
     logger.error(`${err.message}, \n_Stack:_ ${err.stack}`)
   }
 
+logger.error(`${err.message}, \n_Stack:_ ${err.stack}`)
+
   res.status(statusCode).json({
     success: false,
     message,
