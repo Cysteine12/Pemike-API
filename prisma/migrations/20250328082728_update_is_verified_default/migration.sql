@@ -5,8 +5,12 @@
 */
 
 -- AlterTable
-ALTER TABLE `token` DROP COLUMN `expires`,
-    ADD COLUMN `expires` INTEGER NOT NULL;
+ALTER TABLE `token`
+DROP COLUMN `expires`;
+
+--AlterTable
+ALTER TABLE `token`
+ADD COLUMN `expires` INTEGER NOT NULL;
 
 -- AlterTable
 ALTER TABLE `user` MODIFY `isVerified` BOOLEAN NOT NULL DEFAULT false;
