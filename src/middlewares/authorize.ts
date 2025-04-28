@@ -3,6 +3,7 @@ import { NextFunction, Request, Response } from 'express'
 import { UnauthenticatedError, UnauthorizedError } from './errorHandler.js'
 import { UserRole } from '@prisma/client'
 import { config } from '../config/config.js'
+import logger from './logger.js'
 
 const authorize = (roles: UserRole[]) => {
   return (req: Request, res: Response, next: NextFunction) => {
@@ -20,12 +21,12 @@ const authorize = (roles: UserRole[]) => {
 }
 
 const authorizeWebhook = (req: Request, res: Response, next: NextFunction) => {
-  console.info('Webhook triggered')
+  logger.info('Webhook triggered')
 
   const requestIP =
     (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
     req.socket.remoteAddress
-  
+
   if (!config.PAYSTACK_WEBHOOK_IPS.split(',').includes(requestIP)) {
     res.status(403).send('Forbidden')
   }

@@ -57,7 +57,11 @@ const findPayment = async (
 ): Promise<Payment | null> => {
   return await prisma.payment.findUnique({
     where: filter,
-    include: { booking: { include: { trip: { include: { vehicle: true } } } } },
+    include: {
+      booking: {
+        include: { trip: { include: { vehicle: true, FareCondition: true } } },
+      },
+    },
   })
 }
 
