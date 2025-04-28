@@ -23,12 +23,12 @@ const authorizeWebhook = (req: Request, res: Response, next: NextFunction) => {
   console.info('Webhook triggered')
 
   const requestIP =
-    (req.headers['x-forwarded-for'] as string)?.split(',')?.pop()?.trim() ||
+    (req.headers['x-forwarded-for'] as string)?.split(',')[0] ||
     req.socket.remoteAddress
-  console.log('iran', req.headers['x-forwarded-for'], req.socket.remoteAddress)
-  //if (!config.PAYSTACK_WEBHOOK_IPS.split(',').includes(requestIP)) {
-    //res.status(403).send('Forbidden')
-  //}
+  
+  if (!config.PAYSTACK_WEBHOOK_IPS.split(',').includes(requestIP)) {
+    res.status(403).send('Forbidden')
+  }
 
   const hash = crypto
     .createHmac('sha512', config.PAYSTACK_SECRET_KEY)
