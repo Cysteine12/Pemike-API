@@ -24,7 +24,7 @@ const findBookings = async (
     where: filter,
     skip: options?.skip || 0,
     take: options?.limit || 20,
-    include: { trip: true },
+    include: { trip: true, user: true, Payment: true },
   })
 }
 

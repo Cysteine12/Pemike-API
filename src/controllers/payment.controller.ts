@@ -27,7 +27,7 @@ const getPayments = catchAsync(async (req, res) => {
 
   const payments = await paymentService.findPayments(
     { booking: { userId } },
-    { page, limit }
+    { page, limit, include: { booking: { include: { trip: true } } } }
   )
 
   res.status(200).json({
@@ -40,7 +40,23 @@ const getPayment = catchAsync(async (req, res) => {
   const userId = req.user!.id
   const { id } = req.params
 
-  const payment = await paymentService.findPayment({ id, booking: { userId } })
+  const payment = await paymentService.findPayment(
+    { id, booking: { userId } },
+    {
+      include: {
+        booking: {
+          include: {
+            trip: {
+              include: {
+                vehicle: true,
+                Seat: { where: { booking: { userId } } },
+              },
+            },
+          },
+        },
+      },
+    }
+  )
   if (!payment) throw new NotFoundError('Payment not found')
 
   res.status(200).json({

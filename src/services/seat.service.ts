@@ -39,23 +39,6 @@ const updateOrCreateSeat = async (
   })
 }
 
-const updateorCreateManySeatsTransaction = async (
-  tripId: string,
-  seats: SeatUncheckedCreateInput[]
-) => {
-  return await prisma.$transaction(
-    seats.map((seat) =>
-      prisma.seat.upsert({
-        where: { id: seat.id, tripId, bookingId: null },
-        update: {
-          status: seat.status,
-        },
-        create: seat,
-      })
-    )
-  )
-}
-
 const updateManySeatsTransaction = async (
   tripId: string,
   seats: Seat[],
@@ -88,7 +71,6 @@ export default {
   findSeats,
   findSeat,
   updateOrCreateSeat,
-  updateorCreateManySeatsTransaction,
   updateManySeatsTransaction,
   updateManySeats,
 }

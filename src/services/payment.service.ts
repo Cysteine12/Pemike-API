@@ -47,21 +47,17 @@ const findPayments = async (
     where: filter,
     skip: options?.skip || 0,
     take: options?.limit || 20,
-    include: { booking: { include: { trip: true } } },
+    include: options?.include,
   })
 }
 
 const findPayment = async (
   filter: PaymentWhereUniqueInput,
-  options?: PaymentFindUniqueArgs
+  options?: PaymentFindManyArgs
 ): Promise<Payment | null> => {
   return await prisma.payment.findUnique({
     where: filter,
-    include: {
-      booking: {
-        include: { trip: { include: { vehicle: true, FareCondition: true } } },
-      },
-    },
+    include: options?.include,
   })
 }
 

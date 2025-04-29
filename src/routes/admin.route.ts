@@ -13,7 +13,7 @@ router.get(
 )
 
 router.get(
-  '/users/:role/role',
+  '/users/role/:role',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
   adminController.getUsersByRole
@@ -30,28 +30,21 @@ router.patch(
   '/users/role',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
-  adminController.updateRole
+  adminController.updateUserRole
 )
 
 router.get(
-  '/seats/:id',
+  '/seats/trip/:tripId',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
-  adminController.getSeats
+  adminController.getSeatsByTrip
 )
 
 router.post(
-  '/seats',
+  '/seats/reserve',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
-  adminController.reserveSeats
-)
-
-router.get(
-  '/boookings',
-  passport.authenticate('jwt', { session: false }),
-  authorize(['ADMIN']),
-  adminController.getBookings
+  adminController.reserveSeat
 )
 
 router.get(
@@ -59,6 +52,13 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
   adminController.getPayments
+)
+
+router.get(
+  '/payments/status/:status',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.getPaymentsByStatus
 )
 
 export default router
