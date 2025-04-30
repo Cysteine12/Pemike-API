@@ -46,12 +46,8 @@ const getPayment = catchAsync(async (req, res) => {
       include: {
         booking: {
           include: {
-            trip: {
-              include: {
-                vehicle: true,
-                Seat: { where: { booking: { userId } } },
-              },
-            },
+            trip: { include: { vehicle: true } },
+            Seat: { where: { status: SeatStatus.BOOKED } },
           },
         },
       },

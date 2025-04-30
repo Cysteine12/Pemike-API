@@ -25,7 +25,7 @@ app.use(
     origin: config.ORIGIN_URL,
     methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
     allowedHeaders:
-      'Accept, Accept-Language, X-Requested-With, Content-Language, Content-Type, Origin, Authorization, x-paystack-signature',
+      'Accept, Accept-Language, X-Requested-With, Content-Language, Content-Type, Origin, Authorization, x-paystack-signature, x-forwarded-for',
     optionsSuccessStatus: 200,
     credentials: true,
   })
