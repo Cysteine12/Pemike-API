@@ -61,4 +61,11 @@ router.get(
   adminController.getPaymentsByStatus
 )
 
+router.get(
+  '/payments/:id',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.getPayment
+)
+
 export default router

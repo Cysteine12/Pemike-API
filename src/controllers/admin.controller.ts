@@ -139,6 +139,30 @@ const getPaymentsByStatus = catchAsync(async (req, res) => {
   })
 })
 
+const getPayment = catchAsync(async (req, res) => {
+  const { id } = req.params
+
+  const payment = await paymentService.findPayment(
+    { id },
+    {
+      include: {
+        booking: {
+          include: {
+            trip: { include: { Seat: true, vehicle: true } },
+            user: true,
+          },
+        },
+      },
+    }
+  )
+  if (!payment) throw new NotFoundError('Payment not found')
+
+  res.status(200).json({
+    success: true,
+    data: payment,
+  })
+})
+
 export default {
   getUsers,
   getUsersByRole,
@@ -148,4 +172,5 @@ export default {
   reserveSeat,
   getPayments,
   getPaymentsByStatus,
+  getPayment,
 }
