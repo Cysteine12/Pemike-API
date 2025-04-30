@@ -87,9 +87,9 @@ const getSeatsByTrip = catchAsync(async (req, res) => {
 
 const reserveSeat = catchAsync(async (req, res) => {
   const newSeat = {
-    seatNo: req.body.seatNo,
     tripId: req.body.tripId,
-    status: SeatStatus.BOOKED,
+    seatNo: req.body.seatNo,
+    status: req.body.status,
   } as SeatUncheckedCreateInput
 
   const filter: SeatWhereUniqueInput = {
@@ -110,7 +110,7 @@ const getPayments = catchAsync(async (req, res) => {
 
   const payments = await paymentService.findPayments(
     {},
-    { page, limit, include: { booking: { include: {} } } }
+    { page, limit, include: { booking: { include: { user: true } } } }
   )
 
   res.status(200).json({
@@ -120,7 +120,7 @@ const getPayments = catchAsync(async (req, res) => {
 })
 
 const getPaymentsByStatus = catchAsync(async (req, res) => {
-  const status = req.params.status
+  const status = req.params.status.toUpperCase()
   const page = parseInt(req.query.page!)
   const limit = parseInt(req.query.limit!)
 

@@ -217,11 +217,6 @@ const refreshToken = catchAsync(async (req, res) => {
       })
     }
   )
-
-  res.status(200).json({
-    success: true,
-    message: 'Tokens refreshed successfully',
-  })
 })
 
 const requestOTP = catchAsync(async (req, res) => {
