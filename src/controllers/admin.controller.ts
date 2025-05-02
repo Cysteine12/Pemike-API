@@ -37,6 +37,27 @@ const getUsersByRole = catchAsync(async (req, res) => {
   })
 })
 
+const searchUsersByName = catchAsync(async (req, res) => {
+  const { search } = req.query
+  const page = parseInt(req.query.page!)
+  const limit = parseInt(req.query.limit!)
+
+  const users = await userService.findUsers(
+    {
+      OR: [
+        { firstName: { contains: search } },
+        { lastName: { contains: search } },
+      ],
+    },
+    { page, limit }
+  )
+
+  res.status(200).json({
+    success: true,
+    data: users,
+  })
+})
+
 const getUser = catchAsync(async (req, res) => {
   const id = req.params.id
 
@@ -47,7 +68,7 @@ const getUser = catchAsync(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    user: filteredUser,
+    data: filteredUser,
   })
 })
 
@@ -58,7 +79,7 @@ const updateUserRole = catchAsync(async (req, res) => {
 
   res.status(200).json({
     success: true,
-    user: updatedUser,
+    data: updatedUser,
     message: 'User role updated successfully',
   })
 })
@@ -139,6 +160,46 @@ const getPaymentsByStatus = catchAsync(async (req, res) => {
   })
 })
 
+const getPaymentsByBookingStatus = catchAsync(async (req, res) => {
+  const status = req.params.status.toUpperCase()
+  const page = parseInt(req.query.page!)
+  const limit = parseInt(req.query.limit!)
+
+  const payments = await paymentService.findPayments(
+    { booking: { status } },
+    {
+      page,
+      limit,
+      include: { booking: { include: { trip: true, user: true } } },
+    }
+  )
+
+  res.status(200).json({
+    success: true,
+    data: payments,
+  })
+})
+
+const searchPaymentsByReference = catchAsync(async (req, res) => {
+  const { search } = req.query
+  const page = parseInt(req.query.page!)
+  const limit = parseInt(req.query.limit!)
+
+  const payments = await paymentService.findPayments(
+    { reference: { contains: search } },
+    {
+      page,
+      limit,
+      include: { booking: { include: { trip: true, user: true } } },
+    }
+  )
+
+  res.status(200).json({
+    success: true,
+    data: payments,
+  })
+})
+
 const getPayment = catchAsync(async (req, res) => {
   const { id } = req.params
 
@@ -167,11 +228,14 @@ const getPayment = catchAsync(async (req, res) => {
 export default {
   getUsers,
   getUsersByRole,
+  searchUsersByName,
   getUser,
   updateUserRole,
   getSeatsByTrip,
   reserveSeat,
   getPayments,
   getPaymentsByStatus,
+  getPaymentsByBookingStatus,
+  searchPaymentsByReference,
   getPayment,
 }

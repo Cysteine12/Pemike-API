@@ -20,11 +20,26 @@ const getVehicles = catchAsync(async (req, res) => {
   })
 })
 
-const searchVehiclesByLicense = catchAsync(async (req, res) => {
-  const query = pick(req.query, ['page', 'limit', 'licenseNo'])
+const fetchVehiclesByStatus = catchAsync(async (req, res) => {
+  const { status } = req.params
+  const query = pick(req.query, ['page', 'limit'])
 
+  const filter: VehicleWhereInput = { available: status === 'available' }
   const options = { page: Number(query.page), limit: Number(query.limit) }
-  const filter: VehicleWhereInput = { licenseNo: query.licenseNo }
+
+  const vehicles = await vehicleService.findVehicles(filter, options)
+
+  res.status(200).json({
+    success: true,
+    data: vehicles,
+  })
+})
+
+const searchVehiclesByLicense = catchAsync(async (req, res) => {
+  const query = pick(req.query, ['page', 'limit', 'search'])
+
+  const filter: VehicleWhereInput = { licenseNo: { contains: query.search } }
+  const options = { page: Number(query.page), limit: Number(query.limit) }
 
   const vehicles = await vehicleService.findVehicles(filter, options)
 
@@ -101,6 +116,7 @@ const deleteVehicle = catchAsync(async (req, res) => {
 
 export default {
   getVehicles,
+  fetchVehiclesByStatus,
   searchVehiclesByLicense,
   getVehicle,
   createVehicle,

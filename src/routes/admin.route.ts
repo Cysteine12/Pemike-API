@@ -20,6 +20,13 @@ router.get(
 )
 
 router.get(
+  '/users/search',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.searchUsersByName
+)
+
+router.get(
   '/users/:id',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
@@ -59,6 +66,20 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
   adminController.getPaymentsByStatus
+)
+
+router.get(
+  '/payments/booking/status/:status',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.getPaymentsByBookingStatus
+)
+
+router.get(
+  '/payments/search',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.searchPaymentsByReference
 )
 
 router.get(

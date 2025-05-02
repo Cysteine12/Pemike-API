@@ -13,6 +13,13 @@ router.get(
 )
 
 router.get(
+  '/status/:status',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  vehicleController.fetchVehiclesByStatus
+)
+
+router.get(
   '/search',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
