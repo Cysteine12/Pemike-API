@@ -1,5 +1,5 @@
 import prisma from '../config/prisma'
-import { FareCondition, Prisma, Trip } from '@prisma/client'
+import { FareCondition, Prisma } from '@prisma/client'
 import { differenceInCalendarWeeks } from 'date-fns'
 import tripService from './trip.service'
 import { NotFoundError } from '../middlewares/errorHandler'
@@ -69,7 +69,6 @@ const findMatchingFareConditionByTrip = async (
   tripSchedule: Date
 ): Promise<FareCondition | null> => {
   const weeksBefore = differenceInCalendarWeeks(tripSchedule, new Date())
-  console.log(tripSchedule, new Date())
 
   let fareCondition = await prisma.fareCondition.findFirst({
     where: {

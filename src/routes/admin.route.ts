@@ -33,6 +33,13 @@ router.get(
   adminController.getUser
 )
 
+router.post(
+  '/users',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.createUser
+)
+
 router.patch(
   '/users/role',
   passport.authenticate('jwt', { session: false }),
@@ -73,6 +80,13 @@ router.get(
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
   adminController.getPaymentsByBookingStatus
+)
+
+router.get(
+  '/payments/booking/user/:userId',
+  passport.authenticate('jwt', { session: false }),
+  authorize(['ADMIN']),
+  adminController.getPaymentsByBookingUser
 )
 
 router.get(

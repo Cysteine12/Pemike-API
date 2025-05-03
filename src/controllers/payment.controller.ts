@@ -19,6 +19,7 @@ import {
 import { Request, Response } from 'express'
 import { Cache } from '../types/Cache'
 import { getTotalFare } from '../utils/getTotalFare'
+import logger from '../middlewares/logger'
 
 const getPayments = catchAsync(async (req, res) => {
   const userId = req.user!.id
@@ -164,7 +165,7 @@ const paymentWebhook = async (req: Request, res: Response) => {
 
     res.status(200).send('Payment received')
   } catch (err) {
-    console.error(err)
+    logger.error(err)
     res.status(400).send('Event ignored')
   }
 }

@@ -23,19 +23,17 @@ import { config } from '../config/config'
 import { cookieConfig } from '../utils/cookieConfig'
 
 const register = catchAsync(async (req, res) => {
-  let newUser = pick(req.body, [
+  let newUser = pick<UserCreateInput>(req.body, [
     'firstName',
     'lastName',
     'email',
     'phone',
     'gender',
     'password',
-  ])
+  ]) as UserCreateInput
 
   const user = await userService.findUser({ email: newUser.email })
-  if (user) {
-    throw new ValidationError('This email already exists')
-  }
+  if (user) throw new ValidationError('This email already exists')
 
   const salt = await bcrypt.genSalt(10)
   newUser.password = await bcrypt.hash(newUser.password, salt)
@@ -63,18 +61,12 @@ const login = catchAsync(async (req, res) => {
   const { email, password } = req.body
 
   let user = await authService.findUser({ email: email })
-  if (!user) {
-    throw new NotFoundError('Invalid credentials')
-  }
+  if (!user) throw new NotFoundError('Invalid credentials')
 
   const isMatch = await bcrypt.compare(password, user.password)
-  if (!isMatch) {
-    throw new ValidationError('Invalid credentials')
-  }
+  if (!isMatch) throw new ValidationError('Invalid credentials')
 
-  if (!user.isVerified) {
-    throw new ValidationError('verify-email')
-  }
+  if (!user.isVerified) throw new ValidationError('verify-email')
 
   const { access, refresh } = await tokenService.generateAndSaveAuthTokens(
     user.id,
@@ -166,16 +158,13 @@ const resetPassword = catchAsync(async (req, res) => {
 
 const changePassword = catchAsync(async (req, res) => {
   const { currentPassword, newPassword } = req.body
-  const { id } = req.user as User
+  const { id } = req.user!
 
   let user = await authService.findUser({ id })
-  if (!user || !user.password) {
-    throw new NotFoundError('User not found')
-  }
+  if (!user || !user.password) throw new NotFoundError('User not found')
+
   const isMatch = await bcrypt.compare(currentPassword, user.password)
-  if (!isMatch) {
-    throw new ValidationError('Incorrect password')
-  }
+  if (!isMatch) throw new ValidationError('Incorrect password')
 
   const salt = await bcrypt.genSalt(10)
   user.password = await bcrypt.hash(newPassword, salt)
@@ -193,9 +182,7 @@ const changePassword = catchAsync(async (req, res) => {
 const refreshToken = catchAsync(async (req, res) => {
   const refreshToken = req.cookies.refreshToken
 
-  if (!refreshToken) {
-    throw new UnauthenticatedError('No refresh token')
-  }
+  if (!refreshToken) throw new UnauthenticatedError('No refresh token')
 
   jwt.verify(
     refreshToken,

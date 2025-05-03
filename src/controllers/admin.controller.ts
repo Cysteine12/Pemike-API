@@ -1,6 +1,7 @@
 import { SeatStatus, UserRole } from '@prisma/client'
-import { NotFoundError } from '../middlewares/errorHandler'
+import { NotFoundError, ValidationError } from '../middlewares/errorHandler'
 import { paymentService, seatService, userService } from '../services'
+import bcrypt from 'bcryptjs'
 import catchAsync from '../utils/catchAsync'
 import exclude from '../utils/exclude'
 import {
@@ -8,6 +9,8 @@ import {
   SeatWhereUniqueInput,
 } from '../services/seat.service'
 import cache from '../config/cache'
+import { UserCreateInput } from '../services/user.service'
+import pick from '../utils/pick'
 
 const getUsers = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page!)
@@ -69,6 +72,31 @@ const getUser = catchAsync(async (req, res) => {
   res.status(200).json({
     success: true,
     data: filteredUser,
+  })
+})
+
+const createUser = catchAsync(async (req, res) => {
+  const newUser = pick<UserCreateInput>(req.body, [
+    'firstName',
+    'lastName',
+    'email',
+    'phone',
+    'gender',
+    'password',
+  ]) as UserCreateInput
+
+  const user = await userService.findUser({ email: newUser.email })
+  if (user) throw new ValidationError('This email already exists')
+
+  const salt = await bcrypt.genSalt(10)
+  newUser.password = await bcrypt.hash(newUser.password, salt)
+
+  const savedUser = await userService.createUser(newUser as UserCreateInput)
+
+  res.status(201).json({
+    success: true,
+    data: savedUser,
+    message: 'User created successfully',
   })
 })
 
@@ -180,6 +208,33 @@ const getPaymentsByBookingStatus = catchAsync(async (req, res) => {
   })
 })
 
+const getPaymentsByBookingUser = catchAsync(async (req, res) => {
+  const userId = req.params.userId
+  const page = parseInt(req.query.page!)
+  const limit = parseInt(req.query.limit!)
+
+  const payments = await paymentService.findPayments(
+    { booking: { userId } },
+    {
+      page,
+      limit,
+      include: {
+        booking: {
+          include: {
+            trip: { include: { vehicle: true, FareCondition: true } },
+            Seat: true,
+          },
+        },
+      },
+    }
+  )
+
+  res.status(200).json({
+    success: true,
+    data: payments,
+  })
+})
+
 const searchPaymentsByReference = catchAsync(async (req, res) => {
   const { search } = req.query
   const page = parseInt(req.query.page!)
@@ -230,12 +285,14 @@ export default {
   getUsersByRole,
   searchUsersByName,
   getUser,
+  createUser,
   updateUserRole,
   getSeatsByTrip,
   reserveSeat,
   getPayments,
   getPaymentsByStatus,
   getPaymentsByBookingStatus,
+  getPaymentsByBookingUser,
   searchPaymentsByReference,
   getPayment,
 }
