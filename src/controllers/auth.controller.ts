@@ -3,8 +3,6 @@ import jwt from 'jsonwebtoken'
 import {
   CacheAPIError,
   NotFoundError,
-  UnauthenticatedError,
-  UnauthorizedError,
   ValidationError,
 } from '../middlewares/errorHandler'
 import {
