@@ -102,7 +102,7 @@ const verifyEmail = catchAsync(async (req, res) => {
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
 
   if (cachedOTP !== String(otp)) {
-    throw new UnauthorizedError('Wrong code, Try Again!')
+    throw new ValidationError('Wrong code, Try Again!')
   }
 
   const updatedUser = await userService.updateUser(
@@ -144,7 +144,7 @@ const resetPassword = catchAsync(async (req, res) => {
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
 
   if (cachedOTP !== String(otp)) {
-    throw new UnauthorizedError('Wrong code, Try Again!')
+    throw new ValidationError('Wrong code, Try Again!')
   }
 
   const salt = await bcrypt.genSalt(10)
@@ -192,13 +192,13 @@ const changePassword = catchAsync(async (req, res) => {
 const refreshToken = catchAsync(async (req, res) => {
   const refreshToken = req.cookies.refreshToken
 
-  if (!refreshToken) throw new UnauthenticatedError('No refresh token')
+  if (!refreshToken) throw new ValidationError('No refresh token')
 
   jwt.verify(
     refreshToken,
     config.jwt.REFRESH_TOKEN_SECRET,
     async (err: any, payload: any) => {
-      if (err) throw new UnauthenticatedError('Invalid or expired token')
+      if (err) throw new ValidationError('Invalid or expired token')
 
       const { access, refresh } = await tokenService.generateAndSaveAuthTokens(
         payload.sub,
@@ -238,7 +238,7 @@ const verifyOTP = catchAsync(async (req, res) => {
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
 
   if (cachedOTP !== String(otp)) {
-    throw new UnauthorizedError('Wrong code, Try Again!')
+    throw new ValidationError('Wrong code, Try Again!')
   }
 
   res.status(201).json({
