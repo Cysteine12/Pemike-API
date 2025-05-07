@@ -1,12 +1,12 @@
 import { NotFoundError } from '../middlewares/errorHandler'
 import { vehicleService } from '../services'
-import {
-  VehicleUncheckedCreateInput,
-  VehicleUncheckedUpdateInput,
-  VehicleWhereInput,
-} from '../services/vehicle.service'
+import { VehicleWhereInput } from '../services/vehicle.service'
 import catchAsync from '../utils/catchAsync'
 import pick from '../utils/pick'
+import {
+  CreateVehicleSchema,
+  UpdateVehicleSchema,
+} from '../validations/vehicle.validation'
 
 const getVehicles = catchAsync(async (req, res) => {
   const query = pick(req.query, ['page', 'limit'])
@@ -62,7 +62,7 @@ const getVehicle = catchAsync(async (req, res) => {
 })
 
 const createVehicle = catchAsync(async (req, res) => {
-  const newVehicle = pick<VehicleUncheckedCreateInput>(req.body, [
+  const newVehicle = pick(req.body as CreateVehicleSchema, [
     'category',
     'brand',
     'model',
@@ -70,7 +70,7 @@ const createVehicle = catchAsync(async (req, res) => {
     'thumbnail',
     'totalPassengerSeat',
     'available',
-  ]) as VehicleUncheckedCreateInput
+  ])
 
   const savedVehicle = await vehicleService.createVehicle(newVehicle)
 
@@ -84,7 +84,7 @@ const createVehicle = catchAsync(async (req, res) => {
 const updateVehicle = catchAsync(async (req, res) => {
   const id = req.params.id
 
-  const newVehicle = pick<VehicleUncheckedUpdateInput>(req.body, [
+  const newVehicle = pick(req.body as UpdateVehicleSchema, [
     'category',
     'brand',
     'model',
@@ -92,7 +92,7 @@ const updateVehicle = catchAsync(async (req, res) => {
     'thumbnail',
     'totalPassengerSeat',
     'available',
-  ]) as VehicleUncheckedUpdateInput
+  ])
 
   await vehicleService.updateVehicle({ id }, newVehicle)
 

@@ -8,7 +8,7 @@ const validate = (schema: Schema) => {
       schema.parse(req.body)
       next()
     } catch (err: any) {
-      throw new ValidationError(err.errors[0])
+      throw new ValidationError(err.errors[0].message)
     }
   }
 }

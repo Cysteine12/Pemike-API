@@ -20,6 +20,7 @@ import { Request, Response } from 'express'
 import { Cache } from '../types/Cache'
 import { getTotalFare } from '../utils/getTotalFare'
 import logger from '../middlewares/logger'
+import { InitializePaymentSchema } from '../validations/payment.validation'
 
 const getPayments = catchAsync(async (req, res) => {
   const userId = req.user!.id
@@ -64,7 +65,11 @@ const getPayment = catchAsync(async (req, res) => {
 
 const initializePayment = catchAsync(async (req, res) => {
   const user = req.user!
-  const data = pick(req.body, ['sessionID', 'tripId', 'bookingId'])
+  const data = pick(req.body as InitializePaymentSchema, [
+    'sessionID',
+    'tripId',
+    'bookingId',
+  ])
 
   const seats = (await seatService.findSeats({
     bookingId: data.bookingId,
@@ -107,6 +112,7 @@ const initializePayment = catchAsync(async (req, res) => {
 })
 
 const verifyPayment = catchAsync(async (req, res) => {
+  const user = req.user!
   const { reference } = req.params
 
   const response: any = await paymentService.verifyPayment(reference)
@@ -114,9 +120,22 @@ const verifyPayment = catchAsync(async (req, res) => {
   const bookingId = response.data?.data?.metadata?.bookingId
   if (!bookingId) throw new PaymentAPIError(`Invalid payment reference`)
 
-  const payment = await paymentService.findPayment({
-    reference_bookingId: { reference, bookingId },
-  })
+  const payment = await paymentService.findPayment(
+    {
+      booking: { userId: user.id },
+      reference_bookingId: { reference, bookingId },
+    },
+    {
+      include: {
+        booking: {
+          include: {
+            trip: { include: { vehicle: true } },
+            Seat: { where: { status: SeatStatus.BOOKED } },
+          },
+        },
+      },
+    }
+  )
 
   if (!payment) throw new NotFoundError('Payment not found')
 

@@ -11,6 +11,9 @@ import {
 import cache from '../config/cache'
 import { UserCreateInput } from '../services/user.service'
 import pick from '../utils/pick'
+import { RegisterSchema } from '../validations/auth.validation'
+import { UpdateUserRoleSchema } from '../validations/user.validation'
+import { ReserveAdminSeatSchema } from '../validations/seat.validation'
 
 const getUsers = catchAsync(async (req, res) => {
   const page = parseInt(req.query.page!)
@@ -76,14 +79,14 @@ const getUser = catchAsync(async (req, res) => {
 })
 
 const createUser = catchAsync(async (req, res) => {
-  const newUser = pick<UserCreateInput>(req.body, [
+  const newUser = pick(req.body as RegisterSchema, [
     'firstName',
     'lastName',
     'email',
     'phone',
     'gender',
     'password',
-  ]) as UserCreateInput
+  ])
 
   const user = await userService.findUser({ email: newUser.email })
   if (user) throw new ValidationError('This email already exists')
@@ -101,7 +104,7 @@ const createUser = catchAsync(async (req, res) => {
 })
 
 const updateUserRole = catchAsync(async (req, res) => {
-  const { userId, role } = req.body
+  const { userId, role }: UpdateUserRoleSchema = req.body
 
   const updatedUser = await userService.updateUser({ id: userId }, { role })
 
@@ -135,11 +138,11 @@ const getSeatsByTrip = catchAsync(async (req, res) => {
 })
 
 const reserveSeat = catchAsync(async (req, res) => {
-  const newSeat = {
+  const newSeat: ReserveAdminSeatSchema = {
     tripId: req.body.tripId,
     seatNo: req.body.seatNo,
     status: req.body.status,
-  } as SeatUncheckedCreateInput
+  }
 
   const filter: SeatWhereUniqueInput = {
     seatNo_tripId: { seatNo: newSeat.seatNo, tripId: newSeat.tripId },

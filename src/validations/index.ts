@@ -1,0 +1,8 @@
+export { default as authValidation } from './auth.validation'
+export { default as userValidation } from './user.validation'
+export { default as bookingValidation } from './booking.validation'
+export { default as paymentValidation } from './payment.validation'
+export { default as seatValidation } from './seat.validation'
+export { default as tripValidation } from './trip.validation'
+export { default as fareConditionValidation } from './fareCondition.validation'
+export { default as vehicleValidation } from './vehicle.validation'

@@ -2,6 +2,7 @@ import { userService } from '../services'
 import catchAsync from '../utils/catchAsync'
 import exclude from '../utils/exclude'
 import pick from '../utils/pick'
+import { UpdateProfileSchema } from '../validations/user.validation'
 
 const getProfile = catchAsync((req, res) => {
   const user = req.user!
@@ -16,7 +17,12 @@ const getProfile = catchAsync((req, res) => {
 
 const updateProfile = catchAsync(async (req, res) => {
   const { id } = req.user!
-  const newUser = pick(req.body, ['firstName', 'lastName', 'phone', 'gender'])
+  const newUser = pick(req.body as UpdateProfileSchema, [
+    'firstName',
+    'lastName',
+    'phone',
+    'gender',
+  ])
 
   const updatedUser = await userService.updateUser({ id }, newUser)
 

@@ -3,10 +3,11 @@ import catchAsync from '../utils/catchAsync'
 import { CacheAPIError, UnauthorizedError } from '../middlewares/errorHandler'
 import cache from '../config/cache'
 import { v4 as uuidv4 } from 'uuid'
-import { Seat, SeatStatus } from '@prisma/client'
+import { SeatStatus } from '@prisma/client'
 import select from '../utils/select'
 import { SeatFindManyArgs, SeatWhereInput } from '../services/seat.service'
 import { config } from '../config/config'
+import { ReserveSeatSchema } from '../validations/seat.validation'
 
 const getSeatsByTrip = catchAsync(async (req, res) => {
   const filter: SeatWhereInput = { tripId: req.params.id }
@@ -29,7 +30,7 @@ const getSeatsByTrip = catchAsync(async (req, res) => {
 })
 
 const reserveSeat = catchAsync(async (req, res) => {
-  let { tripId, seatNo, sessionID } = req.body
+  let { tripId, seatNo, sessionID }: ReserveSeatSchema = req.body
   if (!sessionID) sessionID = uuidv4()
 
   let seat = await seatService.updateOrCreateSeat(

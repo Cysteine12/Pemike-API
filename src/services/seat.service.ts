@@ -1,5 +1,5 @@
 import prisma from '../config/prisma'
-import { Prisma, Seat } from '@prisma/client'
+import { PassengerType, Prisma, Seat } from '@prisma/client'
 
 export type SeatWhereUniqueInput = Prisma.SeatWhereUniqueInput
 export type SeatFindManyArgs = Prisma.SeatFindManyArgs
@@ -41,7 +41,7 @@ const updateOrCreateSeat = async (
 
 const updateManySeatsTransaction = async (
   tripId: string,
-  seats: Seat[],
+  seats: { id: string; passengerType: PassengerType }[],
   bookingId?: string
 ) => {
   return await prisma.$transaction(

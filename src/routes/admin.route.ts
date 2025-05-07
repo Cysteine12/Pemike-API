@@ -2,6 +2,8 @@ import express from 'express'
 import { adminController } from '../controllers'
 import passport from 'passport'
 import { authorize } from '../middlewares/authorize'
+import { authValidation, seatValidation, userValidation } from '../validations'
+import { validate } from '../middlewares/validate'
 
 const router = express.Router()
 
@@ -37,6 +39,7 @@ router.post(
   '/users',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
+  validate(authValidation.registerSchema),
   adminController.createUser
 )
 
@@ -44,6 +47,7 @@ router.patch(
   '/users/role',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
+  validate(userValidation.updateUserRoleSchema),
   adminController.updateUserRole
 )
 
@@ -58,6 +62,7 @@ router.post(
   '/seats/reserve',
   passport.authenticate('jwt', { session: false }),
   authorize(['ADMIN']),
+  validate(seatValidation.reserveAdminSeatSchema),
   adminController.reserveSeat
 )
 

@@ -2,12 +2,11 @@ import { tripService } from '../services'
 import { NotFoundError } from '../middlewares/errorHandler'
 import catchAsync from '../utils/catchAsync'
 import pick from '../utils/pick'
+import { TripWhereInput } from '../services/trip.service'
 import {
-  TripUncheckedCreateInput,
-  TripUncheckedUpdateInput,
-  TripWhereInput,
-} from '../services/trip.service'
-import { FareConditionCreateWithoutTripInput } from '../services/fare_condition.service'
+  CreateTripSchema,
+  UpdateTripSchema,
+} from '../validations/trip.validation'
 
 const getTrips = catchAsync(async (req, res) => {
   const query = pick(req.query, ['page', 'limit'])
@@ -50,7 +49,8 @@ const getTrip = catchAsync(async (req, res) => {
 })
 
 const createTrip = catchAsync(async (req, res) => {
-  const newTrip = pick<TripUncheckedCreateInput>(req.body, [
+  const payload: CreateTripSchema = req.body
+  const newTrip = pick(payload, [
     'source',
     'destination',
     'departureSchedule',
@@ -59,21 +59,19 @@ const createTrip = catchAsync(async (req, res) => {
     'refundDays',
     'driverId',
     'vehicleId',
-  ]) as TripUncheckedCreateInput
+  ])
 
-  const newFareConditions = req.body.fareConditions.map(
-    (fareCondition: FareConditionCreateWithoutTripInput) => {
-      return pick<FareConditionCreateWithoutTripInput>(fareCondition, [
-        'conditionLabel',
-        'adultPrice',
-        'childPrice',
-        'infantPrice',
-        'maxWeeksBefore',
-        'minWeeksBefore',
-        'cancelLessThan48h',
-      ])
-    }
-  ) as FareConditionCreateWithoutTripInput[]
+  const newFareConditions = payload.fareConditions.map((fareCondition) => {
+    return pick(fareCondition, [
+      'conditionLabel',
+      'adultPrice',
+      'childPrice',
+      'infantPrice',
+      'maxWeeksBefore',
+      'minWeeksBefore',
+      'cancelLessThan48h',
+    ])
+  })
 
   const savedTrip = await tripService.createTrip({
     ...newTrip,
@@ -89,8 +87,9 @@ const createTrip = catchAsync(async (req, res) => {
 
 const updateTrip = catchAsync(async (req, res) => {
   const id = req.params.id
+  const payload: UpdateTripSchema = req.body
 
-  const newTrip = pick<TripUncheckedUpdateInput>(req.body, [
+  const newTrip = pick(payload, [
     'source',
     'destination',
     'departureSchedule',
@@ -99,7 +98,7 @@ const updateTrip = catchAsync(async (req, res) => {
     'refundDays',
     'driverId',
     'vehicleId',
-  ]) as TripUncheckedUpdateInput
+  ])
 
   await tripService.updateTrip({ id }, newTrip)
 

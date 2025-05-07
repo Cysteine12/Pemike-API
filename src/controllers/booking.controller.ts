@@ -5,6 +5,7 @@ import cache from '../config/cache'
 import { CacheAPIError, NotFoundError } from '../middlewares/errorHandler'
 import { Cache } from '../types/Cache'
 import { BookingUncheckedCreateInput } from '../services/booking.service'
+import { CreateBookingSchema } from '../validations/booking.validation'
 
 const getBookings = catchAsync(async (req, res) => {
   const userId = req.user!.id
@@ -37,13 +38,13 @@ const getBooking = catchAsync(async (req, res) => {
 
 const createBooking = catchAsync(async (req, res) => {
   const { id } = req.user!
-  const { sessionID, tripId } = req.body
-  const seats = req.body.seats.map((seat: Seat) => ({
+  let { sessionID, tripId, seats }: CreateBookingSchema = req.body
+  seats = seats.map((seat) => ({
     id: seat.id,
     passengerType: seat.passengerType,
   }))
 
-  seats.forEach((seat: Seat) => {
+  seats.forEach((seat) => {
     const cachedObj = cache.get(seat.id) as Cache
     if (!cachedObj || cachedObj.sessionID !== sessionID) {
       throw new CacheAPIError('Seat lock expired')
@@ -83,13 +84,14 @@ const cancelBooking = catchAsync(async (req, res) => {
   const userId = req.user?.id
   const id = req.params.id
 
-  await bookingService.updateBooking(
-    { id, trip: { departureSchedule: { gt: new Date() } } },
+  const updatedBooking = await bookingService.updateBooking(
+    { id, userId, trip: { departureSchedule: { gt: new Date() } } },
     { status: BookingStatus.CANCELED }
   )
+  if (!updatedBooking) throw new NotFoundError('Booking not found')
 
   await seatService.updateManySeats(
-    { bookingId: id },
+    { bookingId: updatedBooking.id },
     { bookingId: null, status: SeatStatus.AVAILABLE }
   )
 

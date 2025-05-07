@@ -1,4 +1,5 @@
-import { User } from '@prisma/client'
+import bcrypt from 'bcryptjs'
+import jwt from 'jsonwebtoken'
 import {
   CacheAPIError,
   NotFoundError,
@@ -12,25 +13,34 @@ import {
   tokenService,
   userService,
 } from '../services'
+import { User } from '@prisma/client'
+import {
+  ChangePasswordSchema,
+  ForgotPasswordSchema,
+  LoginSchema,
+  RegisterSchema,
+  RequestOTPSchema,
+  ResetPasswordSchema,
+  VerifyEmailSchema,
+  VerifyOTPSchema,
+} from '../validations/auth.validation'
 import catchAsync from '../utils/catchAsync'
-import bcrypt from 'bcryptjs'
-import jwt from 'jsonwebtoken'
 import pick from '../utils/pick'
 import exclude from '../utils/exclude'
-import { UserCreateInput } from '../services/user.service'
 import cache from '../config/cache'
 import { config } from '../config/config'
 import { cookieConfig } from '../utils/cookieConfig'
 
 const register = catchAsync(async (req, res) => {
-  let newUser = pick<UserCreateInput>(req.body, [
+  const payload: RegisterSchema = req.body
+  let newUser = pick(payload, [
     'firstName',
     'lastName',
     'email',
     'phone',
     'gender',
     'password',
-  ]) as UserCreateInput
+  ])
 
   const user = await userService.findUser({ email: newUser.email })
   if (user) throw new ValidationError('This email already exists')
@@ -38,7 +48,7 @@ const register = catchAsync(async (req, res) => {
   const salt = await bcrypt.genSalt(10)
   newUser.password = await bcrypt.hash(newUser.password, salt)
 
-  const savedUser = await userService.createUser(newUser as UserCreateInput)
+  const savedUser = await userService.createUser(newUser)
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
   const isCached = cache.set(
@@ -58,7 +68,7 @@ const register = catchAsync(async (req, res) => {
 })
 
 const login = catchAsync(async (req, res) => {
-  const { email, password } = req.body
+  const { email, password }: LoginSchema = req.body
 
   let user = await authService.findUser({ email: email })
   if (!user) throw new NotFoundError('Invalid credentials')
@@ -86,7 +96,7 @@ const login = catchAsync(async (req, res) => {
 })
 
 const verifyEmail = catchAsync(async (req, res) => {
-  const { email, otp } = req.body
+  const { email, otp }: VerifyEmailSchema = req.body
 
   const cachedOTP = cache.take(email)
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
@@ -109,7 +119,7 @@ const verifyEmail = catchAsync(async (req, res) => {
 })
 
 const forgotPassword = catchAsync(async (req, res) => {
-  const { email } = req.body
+  const { email }: ForgotPasswordSchema = req.body
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
   const isCached = cache.set(
@@ -128,7 +138,7 @@ const forgotPassword = catchAsync(async (req, res) => {
 })
 
 const resetPassword = catchAsync(async (req, res) => {
-  const { email, password, otp } = req.body
+  const { email, password, otp }: ResetPasswordSchema = req.body
 
   const cachedOTP = cache.take(email)
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
@@ -157,7 +167,7 @@ const resetPassword = catchAsync(async (req, res) => {
 })
 
 const changePassword = catchAsync(async (req, res) => {
-  const { currentPassword, newPassword } = req.body
+  const { currentPassword, newPassword }: ChangePasswordSchema = req.body
   const { id } = req.user!
 
   let user = await authService.findUser({ id })
@@ -207,7 +217,7 @@ const refreshToken = catchAsync(async (req, res) => {
 })
 
 const requestOTP = catchAsync(async (req, res) => {
-  const { email, type = 'general' } = req.body
+  const { email }: RequestOTPSchema = req.body
 
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
 
@@ -222,7 +232,7 @@ const requestOTP = catchAsync(async (req, res) => {
 })
 
 const verifyOTP = catchAsync(async (req, res) => {
-  const { email, otp, type } = req.body
+  const { email, otp }: VerifyOTPSchema = req.body
 
   const cachedOTP = cache.take(email)
   if (!cachedOTP) throw new NotFoundError('Expired OTP, Try Again!')
