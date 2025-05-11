@@ -173,7 +173,7 @@ const paymentWebhook = async (req: Request, res: Response) => {
     const savedPayment = await paymentService.updatePayment(filter, newPayment)
 
     await seatService.updateManySeats(
-      { bookingId: event.data.bookingId },
+      { bookingId: event.data.metadata.bookingId },
       { status: SeatStatus.BOOKED }
     )
 
