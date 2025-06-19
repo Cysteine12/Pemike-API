@@ -12,8 +12,23 @@ A RESTful API built using **Node.js**, **Express**, **TypeScript**, and **Prisma
 
 ## 📁 Project Structure
 
-Pemike-API/ │ ├── src/ │   ├── config/             # Configuration files │   ├── controllers/        # Route handler logic │   ├── middlewares/        # Express middlewares │   ├── routes/             # Route definitions │   ├── services/           # Business logic and Prisma interaction │   ├── types/              # Custom types │   ├── utils/              # Helper functions │   ├── validations/        # Zod schemas │   └── app.ts, server.ts   # Entry and setup ├── prisma/                 # Prisma ORM schema & seed ├── dist/                   # Compiled JS output ├── package.json            # Dependencies and scripts └── tsconfig.json           # TS config
-
+Pemike-API/
+│
+├── src/                    # Main source code
+│   ├── config/             # Configuration files (Prisma, JWT, Email, etc.)
+│   ├── controllers/        # Route handler logic
+│   ├── middlewares/        # Express middlewares
+│   ├── routes/             # Route definitions
+│   ├── services/           # Business logic and data interaction
+│   ├── types/              # Custom TypeScript types and definitions
+│   ├── utils/              # Utility/helper functions
+│   ├── validations/        # Zod validators for input validation
+│   └── app.ts, server.ts   # Entry point and Express app setup
+│
+├── prisma/                 # Prisma ORM files (schema, seeders, migrations)
+├── dist/                   # Compiled output (JavaScript)
+├── package.json            # Project dependencies and scripts
+└── tsconfig.json           # TypeScript configuration
 ---
 
 ## 📦 Dependencies and Their Purpose
