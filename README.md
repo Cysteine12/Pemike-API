@@ -12,23 +12,27 @@ A RESTful API built using **Node.js**, **Express**, **TypeScript**, and **Prisma
 
 ## 📁 Project Structure
 
-Pemike-API/
-│
-├── src/                    # Main source code
-│   ├── config/             # Configuration files (Prisma, JWT, Email, etc.)
-│   ├── controllers/        # Route handler logic
-│   ├── middlewares/        # Express middlewares
-│   ├── routes/             # Route definitions
-│   ├── services/           # Business logic and data interaction
-│   ├── types/              # Custom TypeScript types and definitions
-│   ├── utils/              # Utility/helper functions
-│   ├── validations/        # Zod validators for input validation
-│   └── app.ts, server.ts   # Entry point and Express app setup
-│
-├── prisma/                 # Prisma ORM files (schema, seeders, migrations)
-├── dist/                   # Compiled output (JavaScript)
-├── package.json            # Project dependencies and scripts
-└── tsconfig.json           # TypeScript configuration
+- **src/** - Main application source code
+  - **config/** - Configuration files for Prisma, JWT, email services, etc.
+  - **controllers/** - Contains route handlers and request processing logic
+  - **middlewares/** - Express middleware implementations
+  - **routes/** - Route definitions and API endpoints
+  - **services/** - Business logic layer and data interaction
+  - **types/** - Custom TypeScript type definitions
+  - **utils/** - Helper functions and utilities
+  - **validations/** - Input validation schemas (using Zod)
+  - **app.ts, server.ts** - Application entry point and Express setup
+
+- **prisma/** - Contains all Prisma ORM related files including:
+  - Database schema
+  - Seed files
+  - Migration history
+
+- **dist/** - Output directory for compiled JavaScript code
+
+- **package.json** - Project metadata, dependencies, and scripts
+- **tsconfig.json** - TypeScript compiler configuration
+
 ---
 
 ## 📦 Dependencies and Their Purpose
