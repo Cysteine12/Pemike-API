@@ -1,3 +1,6 @@
+Link to the frontend repo:
+https://github.com/Cysteine12/Pemike
+
 A comprehensive trip-booking system.
 
 Developed with Express.js, React.js, Typescript and MySQL database. 
