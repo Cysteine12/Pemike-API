@@ -74,54 +74,124 @@ A RESTful API built using **Node.js**, **Express**, **TypeScript**, and **Prisma
 
 ---
 
-## 📍 API Routes Overview
+# 📘 API Routes Overview
 
-### ✅ Auth Routes (`/api/auth`)
-- `POST /register` - Register a new user
-- `POST /login` - Authenticate a user and provide tokens
-- `POST /logout` - Logout a user
-- `POST /refresh-token` - Get new access token
-- `POST /verify-email` - Confirm user's email with code
-- `POST /resend-verification` - Resend verification code
-- `POST /forgot-password` - Request a password reset link
-- `POST /reset-password` - Reset password with token
+## 🔐 Auth Routes (`/api/auth`)
 
-### 👤 User Routes (`/api/users`)
-- `GET /me` - Get authenticated user's profile
-- `PATCH /me` - Update user profile
-- `GET /:id` - Get user by ID
+| Method | Endpoint            | Description               | Auth Required |
+|--------|---------------------|---------------------------|----------------|
+| POST   | `/register`         | Register new user         | ❌             |
+| POST   | `/login`            | Login                     | ❌             |
+| POST   | `/verify-email`     | Verify email with token   | ❌             |
+| POST   | `/forgot-password`  | Send reset password email | ❌             |
+| POST   | `/reset-password`   | Reset password            | ❌             |
+| POST   | `/change-password`  | Change password           | ✅ JWT         |
+| POST   | `/refresh-token`    | Refresh access token      | ❌             |
+| POST   | `/request-otp`      | Request OTP               | ❌             |
+| POST   | `/verify-otp`       | Verify OTP                | ❌             |
+| POST   | `/logout`           | Logout                    | ❌             |
 
-### 🚌 Trip Routes (`/api/trips`)
-- `GET /` - Fetch all trips
-- `POST /` - Create a new trip
-- `GET /:id` - Get trip by ID
-- `PATCH /:id` - Update trip
-- `DELETE /:id` - Delete trip
+---
 
-### 💺 Seat Routes (`/api/seats`)
-- `GET /` - Get list of seats
-- `POST /` - Create a seat
-- `PATCH /:id` - Update seat
-- `DELETE /:id` - Delete seat
+## 📅 Booking Routes (`/api/bookings`)
 
-### 🚗 Vehicle Routes (`/api/vehicles`)
-- `GET /` - Get list of vehicles
-- `POST /` - Create a vehicle
-- `PATCH /:id` - Update vehicle
-- `DELETE /:id` - Delete vehicle
+| Method | Endpoint   | Description        | Auth Required | Role     |
+|--------|------------|--------------------|----------------|----------|
+| GET    | `/`        | Get all bookings   | ✅ JWT         | CUSTOMER |
+| GET    | `/:id`     | Get a booking      | ✅ JWT         | CUSTOMER |
+| POST   | `/`        | Create a booking   | ✅ JWT         | CUSTOMER |
 
-### 📆 Booking Routes (`/api/bookings`)
-- `POST /` - Book a seat
-- `GET /` - Get user’s bookings
-- `GET /:id` - Get booking by ID
+---
 
-### 💳 Payment Routes (`/api/payments`)
-- `POST /initialize` - Initialize payment
-- `GET /verify/:reference` - Verify payment status
+## 💳 Payment Routes (`/api/payments`)
 
-### 🛠 Admin Routes (`/api/admin`)
-- Admin-only endpoints for managing users, trips, vehicles, etc.
+| Method | Endpoint                      | Description                | Auth Required | Role     |
+|--------|-------------------------------|----------------------------|----------------|----------|
+| GET    | `/`                           | Get all payments           | ✅ JWT         | CUSTOMER |
+| GET    | `/:id`                        | Get a payment              | ✅ JWT         | CUSTOMER |
+| POST   | `/initialize-payment`         | Start a new payment        | ✅ JWT         | CUSTOMER |
+| POST   | `/verify-payment/:reference`  | Verify payment by reference| ✅ JWT         | CUSTOMER |
+| POST   | `/payment-webhook`            | Webhook callback           | ❌             | Webhook  |
 
+---
+
+## 🪑 Seat Routes (`/api/seats`)
+
+| Method | Endpoint          | Description                  | Auth Required |
+|--------|-------------------|------------------------------|----------------|
+| GET    | `/trip/:id`       | Get seats for a trip         | ❌             |
+| POST   | `/reserve`        | Reserve seat (customer)      | ❌             |
+
+---
+
+## 🚌 Trip Routes (`/api/trips`)
+
+| Method | Endpoint    | Description         | Auth Required | Role  |
+|--------|-------------|---------------------|----------------|-------|
+| GET    | `/`         | Get all trips       | ❌             |       |
+| GET    | `/search`   | Search trips        | ❌             |       |
+| GET    | `/:id`      | Get trip by ID      | ❌             |       |
+| POST   | `/`         | Create a trip       | ✅ JWT         | ADMIN |
+| PATCH  | `/:id`      | Update a trip       | ✅ JWT         | ADMIN |
+| DELETE | `/:id`      | Delete a trip       | ✅ JWT         | ADMIN |
+
+---
+
+## 👤 User Routes (`/api/users`)
+
+| Method | Endpoint      | Description         | Auth Required |
+|--------|---------------|---------------------|----------------|
+| GET    | `/profile`    | Get own profile     | ✅ JWT         |
+| PATCH  | `/profile`    | Update own profile  | ✅ JWT         |
+
+---
+
+## 🚗 Vehicle Routes (`/api/vehicles`)
+
+| Method | Endpoint              | Description                   | Auth Required | Role  |
+|--------|-----------------------|-------------------------------|----------------|--------|
+| GET    | `/`                   | Get all vehicles              | ✅ JWT         | ADMIN  |
+| GET    | `/status/:status`     | Filter vehicles by status     | ✅ JWT         | ADMIN  |
+| GET    | `/search`             | Search by license plate       | ✅ JWT         | ADMIN  |
+| GET    | `/:id`                | Get vehicle by ID             | ✅ JWT         | ADMIN  |
+| POST   | `/`                   | Create new vehicle            | ✅ JWT         | ADMIN  |
+| PATCH  | `/:id`                | Update vehicle details        | ✅ JWT         | ADMIN  |
+| DELETE | `/:id`                | Delete a vehicle              | ✅ JWT         | ADMIN  |
+
+---
+
+## 🛠️ Admin Routes (`/api/admin`)
+
+### 👥 Users
+
+| Method | Endpoint              | Description                  |
+|--------|-----------------------|------------------------------|
+| GET    | `/users`              | Get all users                |
+| GET    | `/users/role/:role`   | Filter users by role         |
+| GET    | `/users/search`       | Search users by name         |
+| GET    | `/users/:id`          | Get user by ID               |
+| POST   | `/users`              | Create user (admin account)  |
+| PATCH  | `/users/role`         | Update user's role           |
+
+### 🪑 Seats
+
+| Method | Endpoint                | Description                  |
+|--------|-------------------------|------------------------------|
+| GET    | `/seats/trip/:tripId`   | Get seats for a trip         |
+| POST   | `/seats/reserve`        | Admin reserves a seat        |
+
+### 💳 Payments
+
+| Method | Endpoint                                  | Description                          |
+|--------|-------------------------------------------|--------------------------------------|
+| GET    | `/payments`                               | Get all payments                     |
+| GET    | `/payments/status/:status`                | Filter by payment status             |
+| GET    | `/payments/booking/status/:status`        | Filter by booking status             |
+| GET    | `/payments/booking/user/:userId`          | Filter by user                       |
+| GET    | `/payments/search`                        | Search payments by reference         |
+| GET    | `/payments/:id`                           | Get payment by ID                    |
+
+> 🔐 All admin routes require `JWT` authentication and `ADMIN` role.
 ---
 
 ## 🧠 Other Components
